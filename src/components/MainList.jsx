@@ -231,7 +231,10 @@ export default function MainList({people, onAdd, onUpdate, onToggleDrawer, onDel
                 {Array.from({length:10}).map((_,i)=>{
                   const pct = Math.round((p.friendScore||0)/10)
                   const filled = i < pct
-                  return <span key={i} className={"heart " + (filled? 'filled':'')}>❤</span>
+                  // append variation selector-15 to force text presentation (avoid emoji)
+                  const filledChar = '♥\uFE0E'
+                  const emptyChar = '♡\uFE0E'
+                  return <span key={i} className={"heart " + (filled? 'filled':'')}>{filled ? filledChar : emptyChar}</span>
                 })}
               </div>
               {(p.relationTags && p.relationTags.length>0) && (
