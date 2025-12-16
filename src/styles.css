@@ -1,0 +1,241 @@
+*{box-sizing:border-box;font-family:var(--app-font-family, Meiryo, 'Noto Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif)}
+body{margin:0;background:#eed6b1;color:#2b1f12}
+.app-root header{display:none}
+.app-root header{display:none}
+.app-root header{display:none}
+:root{
+	--field-font-size:15px;
+	--label-font-size:14px;
+	--label-font-weight:600;
+	--field-border-width:2px;
+	--field-border-color:#7a5230;
+	--theme-border: #7a5230;
+	--field-padding:8px;
+	--app-font-family: Meiryo, 'Noto Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--field-border-radius:6px;
+	--field-gap:6px;
+	--field-row-padding:0px;
+}
+.header-actions button, .header-actions .import-btn{margin-left:8px}
+/* Global button styling: parchment tone, used across UI */
+button, input[type="button"], input[type="submit"], .drawer button, .tabs-top button, .tabs-bottom button, .basic-controls button, .custom-controls button, .event-row button, .note-controls button{
+	background: rgba(245,230,210,0.92);
+	border: 1px solid rgba(160,120,80,0.6);
+	color: #2b1f12;
+	padding:6px 8px;
+	border-radius:6px;
+	font-family:var(--app-font-family);
+}
+/* Ensure buttons and form controls use 14px font where browser defaults may be smaller */
+.app-root button, .app-root input, .app-root textarea, .app-root select, .app-root .basic-value, .app-root .custom-value {
+	font-size:14px !important;
+}
+button:active{ transform: translateY(1px) }
+.main-list{padding:0 8px 8px 8px}
+.people-list{list-style:none;padding:0;margin:0}
+.person-row{display:flex;align-items:center;padding:6px 8px;background:#e4c79a;margin-bottom:6px;border:2px solid var(--theme-border);border-radius:6px;cursor:pointer}
+.person-row .avatar{width:48px;height:48px;border-radius:4px;object-fit:cover;margin-right:10px;border:1px solid var(--theme-border)}
+.person-row .meta{flex:1}
+.person-row .name{font-weight:700;color:#2b1f12}
+.hearts{color:#b0a090}
+.heart.filled{color:#a02020;margin-right:4px;font-size:18px}
+.last-interaction{font-size:12px;opacity:0.9}
+.daily-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
+
+/* Ensure hearts keep their own colors and are not overridden by global text color */
+.heart{ color: #b0a090 !important; margin-right:4px }
+.heart.filled{ color: #a02020 !important; margin-right:4px; font-size:18px }
+.score{width:60px;text-align:right}
+.create-form{display:flex;gap:8px;align-items:center;margin:8px 0}
+.person-page{padding:12px}
+.person-header{display:flex;align-items:center;gap:12px}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 10px;border-radius:14px;border:1px solid var(--theme-border);background:rgba(245,230,210,0.9);cursor:pointer}
+.chip-on{background:#cfa66e;color:#2b1f12;border-color:#7a5230}
+.chip-off{background:#f2e3c7;color:#2b1f12;border-color:rgba(122,82,48,0.4)}
+.avatar-large{width:84px;height:84px;border-radius:6px;object-fit:cover;border:2px solid #7a5230}
+.header-meta{display:flex;flex-direction:column;gap:6px}
+.header-meta h2{margin:0;font-size:1.2rem;color:#2b1f12}
+.header-hearts{font-size:18px;color:#b0a090}
+.header-hearts .heart{margin-right:4px}
+.header-hearts .heart.filled{color:#a02020}
+
+.name-row{display:flex;align-items:center;gap:8px}
+.relation-select, .list-relation-select{font-size:14px;padding:4px;border-radius:6px;border:1px solid var(--theme-border);background:#f5e6d2;color:#2b1f12}
+.relation-select{margin-left:6px}
+.list-relation-select{margin-left:4px}
+.tabs{margin-top:12px}
+.tabs button{margin-right:8px}
+.tabs{position:fixed;left:8px;right:8px;bottom:8px;display:flex;flex-direction:column;background:#e4c79a;border-top:1px solid #a0785099;z-index:140;border-radius:8px;padding:6px;backdrop-filter: blur(2px)}
+.tabs-top{display:flex;gap:6px;padding:6px}
+.tabs-top button{flex:1;padding:8px;border-radius:8px;border:1px solid #a0785099;background:transparent;color:#2b1f12}
+.tabs-top button.active{background:rgba(245,230,210,0.95);border-color:#a0785099}
+.tabs-bottom{display:flex;gap:6px;padding:6px;border-top:1px solid #a0785099}
+.tabs-bottom .back-btn{flex:0 0 80px}
+.tabs-bottom .add-btn{flex:1}
+.tab-body{background:#E4C79A;padding:16px;border-radius:8px;margin-top:8px;padding-bottom:140px;border:2px solid var(--theme-border)}
+
+/* Ensure the tab body uses full width and leaves enough bottom space on small screens */
+@media (max-width:480px){
+	.tab-body{padding-left:12px;padding-right:12px;padding-bottom:220px}
+}
+
+.tab-body > .basic, .tab-body > .notes {width:100%;max-width:none;padding:0;margin:0}
+/* Make the inner card area consistent between tabs: ensure .basic and .notes use full width inside tab-body */
+.tab-body > .basic, .tab-body > .notes {width:100%;max-width:none;padding:0;margin:0}
+.tab-body > .basic > .basic-list, .tab-body > .notes > .notes-entries{width:100%}
+
+.custom-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.custom-row{display:flex;flex-direction:row;gap:var(--field-gap);padding:8px;border:1px solid var(--theme-border);border-radius:6px;background:#eed6b1;align-items:flex-start}
+.custom-row.drag-over{outline:2px dashed rgba(160,120,80,0.8)}
+.custom-row .custom-main{flex:1;display:flex;flex-direction:column;gap:6px}
+.custom-row .custom-label{padding:4px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
+.custom-row .custom-value{padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);font-size:var(--field-font-size)}
+.custom-row .custom-controls{display:flex;flex-direction:column;gap:6px}
+.custom-row .custom-controls button{padding:6px}
+
+/* drag handle */
+.drag-handle{width:28px;height:28px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;cursor:grab;flex:0 0 28px}
+.drag-handle:active{cursor:grabbing}
+.basic-row .drag-handle, .custom-row .drag-handle, .event-row .drag-handle, .note-entry .drag-handle{margin-right:8px}
+
+.basic-list{display:flex;flex-direction:column;gap:var(--field-gap,8px);margin-bottom:-15px}
+.basic-row{display:flex;gap:var(--field-gap);padding:10px;border-radius:6px;background:#eed6b1;border:1px solid var(--theme-border);align-items:flex-start}
+.basic-row.drag-over{outline:2px dashed rgba(160,120,80,0.8)}
+.basic-main{flex:1;min-width:0}
+.basic-controls{display:flex;flex-direction:column;gap:6px}
+.basic-controls button{padding:6px}
+.album-upload{display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%}
+.album-upload input[type="file"]{flex:1;min-width:0;max-width:100%}
+
+.event-row{display:flex;gap:var(--field-gap);align-items:center;margin-bottom:var(--field-gap);width:100%;box-sizing:border-box;position:relative;padding-bottom:calc(var(--field-row-padding) + 24px);padding:8px;border:1px solid var(--theme-border);border-radius:6px;background:#eed6b1}
+.events ul{padding:0;margin:0;list-style:none}
+.events ul > .drop-target{width:100%}
+.event-row input{flex:1}
+.event-row .event-meta{font-size:12px;color:#2b1f12;position:absolute;right:var(--field-row-padding);bottom:8px}
+
+/* disable manual resizing for any textarea inside the tab body */
+.tab-body textarea{resize:none;overflow:hidden}
+.event-row button{flex:0 0 64px}
+.event-row input{min-width:0}
+
+/* Mobile / narrow screens: avoid clipped inputs in events list */
+@media (max-width:480px){
+	.event-row{flex-direction:column;align-items:stretch;gap:6px}
+	.event-row .event-meta{flex:0 0 auto;width:auto;text-align:right}
+	.event-row input{width:100%}
+	.event-row .drag-handle{align-self:flex-start}
+}
+
+/* ensure drop-target occupies full width and doesn't cause overflow */
+.drop-target{display:block;width:100%;box-sizing:border-box}
+
+/* textarea support for events */
+.event-row textarea{flex:1;min-width:0;width:100%;padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);font-size:var(--field-font-size);font-family:var(--app-font-family);resize:none}
+@media (max-width:480px){
+	.event-row textarea{font-size:var(--field-font-size)}
+}
+
+.notes-entries{display:flex;flex-direction:column;gap:var(--field-gap,8px);margin-top:8px}
+.note-entry{display:flex;gap:var(--field-gap);padding:8px;border:1px solid var(--theme-border);border-radius:6px;background:#eed6b1}
+.note-entry textarea{flex:1;font-size:var(--field-font-size);padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);font-family:var(--app-font-family);resize:none}
+.note-entry button{flex:0 0 64px}
+.note-label{padding:6px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
+
+/* Ensure all field labels use the same font family/size/weight */
+.basic-label, .note-label, .custom-row .custom-label, .notes label{
+	font-family:var(--app-font-family);
+	font-size:var(--label-font-size);
+	font-weight:var(--label-font-weight);
+}
+
+/* basic fields should visually match note/custom labels and values */
+.basic-label{padding:6px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
+.basic-value{padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);width:100%;box-sizing:border-box;font-size:var(--field-font-size)}
+.basic label, .notes label{padding:6px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
+.basic input, .basic textarea, .notes textarea{width:100%;padding:var(--field-padding);font-size:var(--field-font-size);border:var(--field-border-width) solid var(--field-border-color);box-sizing:border-box;border-radius:var(--field-border-radius);font-family:var(--app-font-family);resize:none}
+.basic-actions button{margin-right:8px;margin-top:8px}
+.lock-screen{padding:24px}
+.pin-form input{padding:6px;margin-right:8px}
+.save-row{margin-top:12px}
+
+/* List actions (search, filters, bulk buttons) - wraps when needed, no scrollbar */
+.list-actions, .bulk-actions {
+	display: flex !important;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap !important;
+	padding: 4px;
+	position: relative;
+	z-index: 50;
+}
+.list-actions input, .list-actions select, .list-actions button,
+.bulk-actions input, .bulk-actions select, .bulk-actions button {
+	flex-shrink: 1;
+	min-width: 0;
+	min-height: 32px;
+	padding: 6px 8px;
+}
+.list-actions input, .bulk-actions input {
+	flex: 1 1 auto;
+	min-width: 120px;
+}
+.list-actions select {
+	flex: 0 0 auto;
+	min-width: 100px;
+	background: #f5e6d2eb;
+}
+.list-actions button, .bulk-actions button {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+/* drop target at end of lists to allow dropping into the end */
+.drop-target{height:18px;border-radius:6px}
+.drop-target.drag-over{outline:2px dashed rgba(160,120,80,0.8)}
+
+/* Drawer styles */
+.drawer-toggle{position:fixed;top:12px;right:12px;z-index:70}
+.drawer-toggle button{padding:8px 10px;border-radius:8px;background:rgba(236,214,176,0.85);border:1px solid var(--theme-border);color:#2b1f12;backdrop-filter: blur(2px)}
+.drawer{position:fixed;top:44px;right:12px;background:rgba(236,214,176,0.86);border:1px solid var(--theme-border);padding:8px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);z-index:70;display:flex;flex-direction:column;gap:6px;backdrop-filter: blur(2px)}
+.drawer button, .drawer .import-btn{padding:8px;background:rgba(245,230,210,0.85);border:1px solid var(--theme-border);border-radius:6px;color:#2b1f12}
+
+/* Modal */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:70}
+.modal{background:linear-gradient(180deg,#fff7ef 0%,#f7ead6 100%);padding:16px;border-radius:8px;min-width:320px;border:1px solid #d0b188}
+
+/* Inputs and textarea color matching */
+input, textarea, .basic-value, .custom-value, .note-entry textarea, .event-row textarea{
+	background: #eed6b1;
+	border:1px solid rgba(160,120,80,0.5);
+	color:#2b1f12;
+}
+.relation-select, .list-relation-select{background: #F5E6D2F2; border:1px solid rgba(160,120,80,0.6); color:#2b1f12}
+
+/* Force textarea/input backgrounds inside tab body to match theme (override defaults) */
+.tab-body textarea, .tab-body input, .tab-body .basic-value, .tab-body .custom-value {
+	background: #eed6b1 !important;
+	color: #2b1f12 !important;
+	border: 1px solid rgba(160,120,80,0.6) !important;
+}
+
+/* placeholder color for readability */
+.tab-body textarea::placeholder, .tab-body input::placeholder {
+	color: rgba(43,31,18,0.5);
+}
+
+/* Stronger global app-level override in case some inputs are outside .tab-body or have higher specificity */
+.app-root textarea, .app-root input, .app-root .basic-value, .app-root .custom-value, .app-root .note-entry textarea, .app-root .event-row textarea {
+	background: #eed6b1 !important;
+	color: #2b1f12 !important;
+	border: 1px solid rgba(160,120,80,0.6) !important;
+}
+.app-root textarea::placeholder, .app-root input::placeholder{ color: rgba(43,31,18,0.5) !important }
+
+/* Ensure textual elements use the requested text color */
+.app-root, .app-root p, .app-root span, .app-root label, .app-root input, .app-root textarea, .app-root select, .app-root h1, .app-root h2, .app-root h3, .app-root h4, .app-root .meta, .app-root .name, .app-root .header-meta h2, .app-root .event-row .event-meta {
+	color: #2b1f12 !important;
+}
+
+/* Remove percentage from list by ensuring score not shown */
+.person-row .score{display:none}

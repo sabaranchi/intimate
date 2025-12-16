@@ -1,0 +1,12 @@
+{
+  "name": "親密管理アプリ",
+  "short_name": "親密",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "人間関係を管理するPWAサンプルアプリ",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
