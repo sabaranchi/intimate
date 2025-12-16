@@ -60,8 +60,8 @@ button:active{ transform: translateY(1px) }
 .avatar-large{width:84px;height:84px;border-radius:6px;object-fit:cover;border:2px solid #7a5230}
 .header-meta{display:flex;flex-direction:column;gap:6px}
 .header-meta h2{margin:0;font-size:1.2rem;color:#2b1f12}
-.header-hearts{font-size:18px;color:#b0a090}
-.header-hearts .heart{margin-right:4px}
+.header-hearts{font-size:18px;color:#b0a090;white-space:nowrap;overflow:hidden;display:flex}
+.header-hearts .heart{margin-right:4px;flex-shrink:0}
 .header-hearts .heart.filled{color:#a02020}
 
 .name-row{display:flex;align-items:center;gap:8px}
