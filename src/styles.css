@@ -30,6 +30,10 @@ button, input[type="button"], input[type="submit"], .drawer button, .tabs-top bu
 .app-root button, .app-root input, .app-root textarea, .app-root select, .app-root .basic-value, .app-root .custom-value {
 	font-size:14px !important;
 }
+/* Prevent auto-zoom on input focus on mobile by setting font-size to 16px minimum */
+input, textarea, select {
+	font-size: 16px;
+}
 button:active{ transform: translateY(1px) }
 .main-list{padding:0 8px 8px 8px; touch-action: manipulation}
 .people-list{list-style:none;padding:0;margin:0}
@@ -43,8 +47,8 @@ button:active{ transform: translateY(1px) }
 .daily-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
 
 /* Ensure hearts keep their own colors and are not overridden by global text color */
-.heart{ color: #b0a090 !important; margin-right:4px; font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans JP', Meiryo, Arial, sans-serif; font-weight: 400 }
-.heart.filled{ color: #a02020 !important; margin-right:4px; font-size:18px }
+.heart{ color: #b0a090 !important; margin-right:4px; font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans JP', Meiryo, Arial, sans-serif; font-weight: 400; font-size: 18px; line-height: 1 }
+.heart.filled{ color: #a02020 !important; margin-right:4px; font-size: 18px; line-height: 1 }
 .score{width:60px;text-align:right}
 .create-form{display:flex;gap:8px;align-items:center;margin:8px 0}
 .person-page{padding:12px}
