@@ -72,12 +72,15 @@ export default function PersonPage({person, onSave, onBack}){
   const [editMode, setEditMode] = useState(false)
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
+  const photoMigrationDoneRef = useRef(false)
 
-  // Migrate base64 photos to compressed blobs in IndexedDB
+  // Migrate base64 photos to compressed blobs in IndexedDB (once)
   useEffect(()=>{
+    if(photoMigrationDoneRef.current) return
+    const photos = local.photos || []
+    if(!photos.some(p => typeof p === 'string')) return
+    photoMigrationDoneRef.current = true
     async function migratePhotos(){
-      const photos = local.photos || []
-      if(!photos.some(p => typeof p === 'string')) return
       const converted = []
       for(const ph of photos){
         if(typeof ph === 'string'){
@@ -91,7 +94,7 @@ export default function PersonPage({person, onSave, onBack}){
           converted.push(ph)
         }
       }
-      setLocal({...local, photos: converted})
+      setLocal(prev => ({...prev, photos: converted}))
     }
     migratePhotos()
   }, [local.photos])
