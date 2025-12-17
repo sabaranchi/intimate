@@ -732,10 +732,18 @@ export default function PersonPage({person, onSave, onBack}){
               pointerEvents:'none',
               boxShadow:'0 0 0 9999px rgba(0,0,0,0.5)'
             }} />
-          </div>
-          <div style={{display:'flex',gap:8}}>
-            <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }}>キャンセル</button>
-            <button onClick={applyCropAvatar}>トリミング確定</button>
+            {/* Buttons overlay below the crop box */}
+            <div style={{
+              position:'absolute',
+              top:'calc(50% + 220px + 20px)',
+              left:'50%',
+              transform:'translateX(-50%)',
+              display:'flex',
+              gap:8
+            }}>
+              <button onClick={applyCropAvatar}>トリミング確定</button>
+              <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }}>キャンセル</button>
+            </div>
           </div>
         </div>
       )}
