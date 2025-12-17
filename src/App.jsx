@@ -95,6 +95,7 @@ export default function App(){
     async function migrate(){
       let changed = false
       const out = await Promise.all((people||[]).map(async p => {
+        // Migrate avatar data URLs
         if(p && typeof p.avatar === 'string' && p.avatar.startsWith('data:')){
           try{
             const resp = await fetch(p.avatar)
@@ -106,6 +107,24 @@ export default function App(){
             np.avatarId = id
             return np
           }catch(e){ return p }
+        }
+        // Migrate photo data URLs
+        if(p && Array.isArray(p.photos) && p.photos.some(ph => typeof ph === 'string')){
+          const convertedPhotos = []
+          for(const ph of p.photos){
+            if(typeof ph === 'string'){
+              try{
+                const resp = await fetch(ph)
+                const blob = await resp.blob()
+                const id = await avatarStore.saveCompressedAvatar(blob, { maxWidth: 1280, quality: 0.8 })
+                convertedPhotos.push({ id })
+                changed = true
+              }catch(e){ convertedPhotos.push(ph) }
+            }else{
+              convertedPhotos.push(ph)
+            }
+          }
+          return {...p, photos: convertedPhotos}
         }
         return p
       }))

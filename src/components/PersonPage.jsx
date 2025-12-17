@@ -73,31 +73,6 @@ export default function PersonPage({person, onSave, onBack}){
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
 
-  // Migrate base64 photos to compressed blobs in IndexedDB (on mount and person change only)
-  useEffect(()=>{
-    const photos = local.photos || []
-    if(!photos.some(p => typeof p === 'string')) return
-    let cancelled = false
-    async function migratePhotos(){
-      const converted = []
-      for(const ph of photos){
-        if(typeof ph === 'string'){
-          try{
-            const resp = await fetch(ph)
-            const blob = await resp.blob()
-            const id = await avatarStore.saveCompressedAvatar(blob, { maxWidth: 1280, quality: 0.8 })
-            converted.push({ id })
-          }catch(e){ converted.push(ph) }
-        }else{
-          converted.push(ph)
-        }
-      }
-      if(!cancelled) setLocal(prev => ({...prev, photos: converted}))
-    }
-    migratePhotos()
-    return ()=>{ cancelled = true }
-  }, [person?.id])
-
   // Resolve photo URLs for id-based photos
   useEffect(()=>{
     let cancelled = false
