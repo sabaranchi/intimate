@@ -10,8 +10,26 @@ export default function PersonPage({person, onSave, onBack}){
   const [showAvatarCrop, setShowAvatarCrop] = useState(false)
   const [avatarCropImage, setAvatarCropImage] = useState(null)
   const cropCanvasRef = useRef(null)
-  const cropXRef = useRef(0)
-  const cropYRef = useRef(0)
+  // Crop interaction state: pinch-zoom + drag
+  const [cropScale, setCropScale] = useState(1)
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 })
+  const cropPointersRef = useRef(new Map())
+  const pinchInitialRef = useRef({ dist: 0, scale: 1 })
+  const cropViewportRef = useRef(null)
+
+  // Bind non-passive wheel handler to allow preventDefault
+  useEffect(()=>{
+    if(!showAvatarCrop) return
+    const el = cropViewportRef.current
+    if(!el) return
+    const handler = (e)=>{
+      e.preventDefault()
+      const delta = -Math.sign(e.deltaY) * 0.1
+      setCropScale(prev => Math.max(0.5, Math.min(5, prev + delta)))
+    }
+    el.addEventListener('wheel', handler, { passive: false })
+    return ()=>{ el.removeEventListener('wheel', handler) }
+  }, [showAvatarCrop])
   if(!person) return (
     <div>
       <p>人物が見つかりません</p>
@@ -64,6 +82,8 @@ export default function PersonPage({person, onSave, onBack}){
     const r = new FileReader()
     r.onload = ()=> {
       setAvatarCropImage(r.result)
+      setCropScale(1)
+      setCropOffset({ x: 0, y: 0 })
       setShowAvatarCrop(true)
     }
     r.readAsDataURL(file)
@@ -75,31 +95,87 @@ export default function PersonPage({person, onSave, onBack}){
     const ctx = canvas.getContext('2d')
     const img = new Image()
     img.onload = async ()=>{
-      const size = Math.min(img.width, img.height)
-      const x = Math.max(0, Math.min(cropXRef.current, img.width - size))
-      const y = Math.max(0, Math.min(cropYRef.current, img.height - size))
-      
-      canvas.width = size
-      canvas.height = size
-      ctx.drawImage(img, x, y, size, size, 0, 0, size, size)
-      
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
-      
-      // 圧縮して保存
+      // Compute crop rect from transform (centered viewport with square overlay)
+      const cropSize = 220 // viewport overlay size in CSS px
+      const s = cropScale
+      const W = img.naturalWidth
+      const H = img.naturalHeight
+      const iCenterX = W/2 - (cropOffset.x / s)
+      const iCenterY = H/2 - (cropOffset.y / s)
+      const half = (cropSize/2) / s
+      let sx = Math.round(iCenterX - half)
+      let sy = Math.round(iCenterY - half)
+      let sw = Math.round((cropSize) / s)
+      let sh = sw // square
+      // Clamp to image bounds
+      if(sx < 0) sx = 0
+      if(sy < 0) sy = 0
+      if(sx + sw > W) sx = Math.max(0, W - sw)
+      if(sy + sh > H) sy = Math.max(0, H - sh)
+
+      const outSize = Math.min(sw, sh)
+      canvas.width = outSize
+      canvas.height = outSize
+      ctx.drawImage(img, sx, sy, outSize, outSize, 0, 0, outSize, outSize)
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+      const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
       try{
-        const id = await avatarStore.saveCompressedAvatar(
-          new File([canvas.toBlob ? await new Promise(r=> canvas.toBlob(r, 'image/jpeg', 0.75)) : croppedDataUrl], 'avatar.jpg'),
-          { maxWidth: 512, quality: 0.75 }
-        )
+        const id = await avatarStore.saveCompressedAvatar(file, { maxWidth: 512, quality: 0.75 })
         setLocal({...local, avatarId: id, avatar: undefined})
       }catch(e){
+        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
         setLocal({...local, avatar: croppedDataUrl})
       }
-      
       setShowAvatarCrop(false)
       setAvatarCropImage(null)
     }
     img.src = avatarCropImage
+  }
+
+  // Crop interaction handlers (pointer + wheel)
+  function onCropPointerDown(e){
+    const el = e.currentTarget
+    el.setPointerCapture && el.setPointerCapture(e.pointerId)
+    const pts = cropPointersRef.current
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if(pts.size === 2){
+      const arr = Array.from(pts.values())
+      const dx = arr[0].x - arr[1].x
+      const dy = arr[0].y - arr[1].y
+      pinchInitialRef.current = { dist: Math.hypot(dx, dy), scale: cropScale }
+    }
+  }
+  function onCropPointerMove(e){
+    const pts = cropPointersRef.current
+    if(!pts.has(e.pointerId)) return
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if(pts.size === 1){
+      // Drag to pan
+      const dx = e.movementX || 0
+      const dy = e.movementY || 0
+      setCropOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }))
+    }else if(pts.size === 2){
+      // Pinch to zoom
+      const arr = Array.from(pts.values())
+      const dx = arr[0].x - arr[1].x
+      const dy = arr[0].y - arr[1].y
+      const dist = Math.hypot(dx, dy)
+      const base = pinchInitialRef.current
+      if(base.dist > 0){
+        const nextScale = Math.max(0.5, Math.min(5, base.scale * (dist / base.dist)))
+        setCropScale(nextScale)
+      }
+    }
+  }
+  function onCropPointerUp(e){
+    const pts = cropPointersRef.current
+    pts.delete(e.pointerId)
+  }
+  function onCropWheel(e){
+    e.preventDefault()
+    const delta = -Math.sign(e.deltaY) * 0.1
+    setCropScale(prev => Math.max(0.5, Math.min(5, prev + delta)))
   }
 
   // manage objectURL for avatarId
@@ -609,21 +685,52 @@ export default function PersonPage({person, onSave, onBack}){
       {/* Avatar Crop Modal */}
       {showAvatarCrop && avatarCropImage && (
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:300,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:16}}>
-          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,position:'relative',maxWidth:'90vw',maxHeight:'70vh'}}>
-            <img src={avatarCropImage} alt="crop" style={{maxWidth:'100%',maxHeight:'100%',cursor:'move'}} 
-              onMouseDown={e=>{
-                const startX = e.clientX, startY = e.clientY
-                const startCropX = cropXRef.current, startCropY = cropYRef.current
-                const handleMove = (ev)=>{
-                  cropXRef.current = startCropX - (ev.clientX - startX)
-                  cropYRef.current = startCropY - (ev.clientY - startY)
-                }
-                const handleUp = ()=>{ document.removeEventListener('mousemove',handleMove); document.removeEventListener('mouseup',handleUp) }
-                document.addEventListener('mousemove',handleMove)
-                document.addEventListener('mouseup',handleUp)
+          <div
+            ref={cropViewportRef}
+            onPointerDown={onCropPointerDown}
+            onPointerMove={onCropPointerMove}
+            onPointerUp={onCropPointerUp}
+            style={{
+              flex:1,
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              marginBottom:16,
+              position:'relative',
+              maxWidth:'90vw',
+              maxHeight:'70vh',
+              width: 'min(90vw, 480px)',
+              height: 'min(70vh, 480px)',
+              touchAction: 'none',
+              overflow:'hidden'
+            }}
+          >
+            <img
+              src={avatarCropImage}
+              alt="crop"
+              style={{
+                position:'absolute',
+                top:'50%',
+                left:'50%',
+                transform: `translate(calc(-50% + ${cropOffset.x}px), calc(-50% + ${cropOffset.y}px)) scale(${cropScale})`,
+                transformOrigin: 'center center',
+                userSelect:'none',
+                pointerEvents:'none'
               }}
             />
-            <div style={{position:'absolute',border:'2px solid white',width:200,height:200,pointerEvents:'none'}} />
+            {/* Fixed square crop overlay centered */}
+            <div style={{
+              position:'absolute',
+              top:'50%',
+              left:'50%',
+              width:220,
+              height:220,
+              transform:'translate(-50%, -50%)',
+              boxShadow:'0 0 0 9999px rgba(0,0,0,0.5)',
+              border:'2px solid #fff',
+              borderRadius:8,
+              pointerEvents:'none'
+            }} />
           </div>
           <div style={{display:'flex',gap:8}}>
             <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }}>キャンセル</button>
