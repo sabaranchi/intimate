@@ -17,9 +17,6 @@ function loadPeople(){
     return []
   }
 }
-function savePeople(p){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(p))
-}
 
 export default function App(){
   const [people, setPeople] = useState(loadPeople())
@@ -27,6 +24,21 @@ export default function App(){
   const [locked, setLocked] = useState(true)
   const [pinMode, setPinMode] = useState(false)
   const [message, setMessage] = useState('')
+    // Save with quota guard
+    const safeSavePeople = (p)=>{
+      try{
+        const str = JSON.stringify(p)
+        // localStorage 目安: 5MB。少し余裕を持って 4.5MB 相当で打ち切り。
+        if(str.length > 4_500_000){
+          setMessage('保存サイズが上限に近いため保存をスキップしました。人数や写真を減らしてください。')
+          return
+        }
+        localStorage.setItem(STORAGE_KEY, str)
+      }catch(e){
+        setMessage('保存に失敗しました（容量超過の可能性）')
+      }
+    }
+
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
@@ -38,7 +50,7 @@ export default function App(){
     return ()=> window.removeEventListener('hashchange', h)
   },[])
 
-  useEffect(()=> savePeople(people), [people])
+  useEffect(()=> safeSavePeople(people), [people])
 
   // migrate any inline data: URLs to IndexedDB on startup
   useEffect(()=>{
@@ -62,7 +74,7 @@ export default function App(){
       }))
       if(changed){
         setPeople(out)
-        savePeople(out)
+        safeSavePeople(out)
       }
     }
     migrate()
