@@ -9,6 +9,9 @@ export default function PersonPage({person, onSave, onBack}){
   const [expandedPhoto, setExpandedPhoto] = useState(null)
   const [cropMode, setCropMode] = useState(false)
   const [cropImage, setCropImage] = useState(null)
+  const [cropOffset, setCropOffset] = useState({x: 0, y: 0})
+  const [cropDragging, setCropDragging] = useState(false)
+  const [cropDragStart, setCropDragStart] = useState({x: 0, y: 0})
   const cropCanvasRef = useRef(null)
   if(!person) return (
     <div>
@@ -87,12 +90,48 @@ export default function PersonPage({person, onSave, onBack}){
 
   function applyCrop(){
     if(!cropCanvasRef.current || !cropImage) return
-    cropCanvasRef.current.toBlob(blob=>{
-      if(blob) handleAvatar(blob)
-      setCropMode(false)
-      setCropImage(null)
-    }, 'image/jpeg', 0.85)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const size = 250
+    canvas.width = size
+    canvas.height = size
+    const img = new Image()
+    img.onload = ()=>{
+      ctx.drawImage(img, -cropOffset.x, -cropOffset.y, img.width, img.height)
+      canvas.toBlob(blob=>{
+        if(blob) handleAvatar(blob)
+        setCropMode(false)
+        setCropImage(null)
+        setCropOffset({x: 0, y: 0})
+      }, 'image/jpeg', 0.85)
+    }
+    img.src = cropImage
   }
+
+  function handleCropMouseDown(e){
+    setCropDragging(true)
+    setCropDragStart({x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y})
+  }
+
+  function handleCropMouseMove(e){
+    if(!cropDragging) return
+    setCropOffset({x: e.clientX - cropDragStart.x, y: e.clientY - cropDragStart.y})
+  }
+
+  function handleCropMouseUp(){
+    setCropDragging(false)
+  }
+
+  useEffect(()=>{
+    if(cropDragging){
+      document.addEventListener('mousemove', handleCropMouseMove)
+      document.addEventListener('mouseup', handleCropMouseUp)
+      return ()=>{
+        document.removeEventListener('mousemove', handleCropMouseMove)
+        document.removeEventListener('mouseup', handleCropMouseUp)
+      }
+    }
+  }, [cropDragging, cropDragStart])
 
   // manage objectURL for avatarId
   const [avatarUrl, setAvatarUrl] = useState(null)
@@ -601,11 +640,13 @@ export default function PersonPage({person, onSave, onBack}){
       {/* Crop Modal */}
       {cropMode && cropImage && (
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:210,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:20,gap:12}}>
-          <div style={{color:'white',fontSize:14,marginBottom:8}}>クロップ範囲を調整してください（正方形）</div>
-          <canvas ref={cropCanvasRef} style={{width:250,height:250,border:'2px solid white',cursor:'crosshair',background:`url(${cropImage}) center/cover`}} />
-          <div style={{display:'flex',gap:12}}>
-            <button onClick={applyCrop} style={{padding:'8px 16px',background:'#4CAF50',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>適用</button>
-            <button onClick={()=>{setCropMode(false);setCropImage(null)}} style={{padding:'8px 16px',background:'#f44336',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>キャンセル</button>
+          <div style={{color:'white',fontSize:14,marginBottom:8}}>画像をドラッグして位置を調整</div>
+          <div style={{position:'relative',width:250,height:250,border:'2px solid white',overflow:'hidden',backgroundColor:'#333',cursor:'move'}} onMouseDown={handleCropMouseDown}>
+            <img src={cropImage} alt="crop" style={{position:'absolute',left:cropOffset.x,top:cropOffset.y,userSelect:'none'}} />
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={applyCrop} style={{padding:'6px 12px',background:'#4CAF50',color:'white',border:'none',borderRadius:4,cursor:'pointer',fontSize:12}}>適用</button>
+            <button onClick={()=>{setCropMode(false);setCropImage(null);setCropOffset({x:0,y:0})}} style={{padding:'6px 12px',background:'#f44336',color:'white',border:'none',borderRadius:4,cursor:'pointer',fontSize:12}}>キャンセル</button>
           </div>
         </div>
       )}
