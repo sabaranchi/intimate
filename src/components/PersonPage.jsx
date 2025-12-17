@@ -75,6 +75,7 @@ export default function PersonPage({person, onSave, onBack}){
 
   // Migrate base64 photos to compressed blobs in IndexedDB
   useEffect(()=>{
+    if(!local.photos?.length) return
     async function migratePhotos(){
       const photos = local.photos || []
       if(!photos.some(p => typeof p === 'string')) return
@@ -91,10 +92,12 @@ export default function PersonPage({person, onSave, onBack}){
           converted.push(ph)
         }
       }
-      setLocal({...local, photos: converted})
+      if(converted.some((p, i) => p !== photos[i])){
+        setLocal(prev => ({...prev, photos: converted}))
+      }
     }
     migratePhotos()
-  }, [local.photos])
+  }, []) // Run only once on mount
 
   // Resolve photo URLs for id-based photos
   useEffect(()=>{
@@ -113,7 +116,7 @@ export default function PersonPage({person, onSave, onBack}){
       if(!cancelled) setPhotoUrls(map)
     })()
     return ()=>{ cancelled = true }
-  }, [local.photos])
+  }, [])
 
   function save(){
     // normalize before saving
