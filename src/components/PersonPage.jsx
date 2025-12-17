@@ -73,6 +73,29 @@ export default function PersonPage({person, onSave, onBack}){
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
 
+  // Migrate base64 photos to compressed blobs in IndexedDB
+  useEffect(()=>{
+    async function migratePhotos(){
+      const photos = local.photos || []
+      if(!photos.some(p => typeof p === 'string')) return
+      const converted = []
+      for(const ph of photos){
+        if(typeof ph === 'string'){
+          try{
+            const resp = await fetch(ph)
+            const blob = await resp.blob()
+            const id = await avatarStore.saveCompressedAvatar(blob, { maxWidth: 1280, quality: 0.8 })
+            converted.push({ id })
+          }catch(e){ converted.push(ph) }
+        }else{
+          converted.push(ph)
+        }
+      }
+      setLocal({...local, photos: converted})
+    }
+    migratePhotos()
+  }, [local.photos])
+
   // Resolve photo URLs for id-based photos
   useEffect(()=>{
     let cancelled = false
@@ -542,7 +565,7 @@ export default function PersonPage({person, onSave, onBack}){
                         <textarea className="basic-value" data-cat="basic" data-id="hobbies" ref={el=>{ if(el) autosize(el) }} value={(local.hobbies||[]).join(',')} onChange={e=> { setLocal({...local, hobbies: splitList(e.target.value)}); autosize(e.target) }} onFocus={e=> { e.target.scrollIntoView({behavior:'smooth', block:'center'}); autosize(e.target) }} style={{height: (local.fieldHeights?.basic?.hobbies) ? local.fieldHeights.basic.hobbies + 'px' : undefined}} />
                       </div>
                     )}
-                        {/* render unknown/extra basic keys as generic label+input */}
+                        {/* render unknown/extra basic keys as generic label+textarea */}
                         {!['name','reading','nickname','gender','relation','relationTags','contacts','address','birthday','workplace','favourites','dislikes','hobbies'].includes(key) && (
                           <div>
                             {editMode ? (
@@ -554,12 +577,12 @@ export default function PersonPage({person, onSave, onBack}){
                             ) : (
                               <div className="basic-label">{local.extraFields?.[key]?.label || '項目名'}</div>
                             )}
-                            <textarea className="basic-value" data-cat="basicExtra" data-id={key} ref={el=>{ if(el) autosize(el) }} value={local.extraFields?.[key]?.value || ''} onChange={e=>{
+                            <textarea className="basic-value" data-cat="basic" data-id={key} ref={el=>{ if(el) autosize(el) }} value={local.extraFields?.[key]?.value || ''} onChange={e=>{
                               const arr = {...(local.extraFields||{})}
                               arr[key] = {...(arr[key]||{}), value: e.target.value}
                               setLocal({...local, extraFields: arr})
                               autosize(e.target)
-                            }} onFocus={e=> { e.target.scrollIntoView({behavior:'smooth', block:'center'}); autosize(e.target) }} style={{height: (local.fieldHeights?.basicExtra?.[key]) ? local.fieldHeights.basicExtra[key] + 'px' : undefined}} />
+                            }} onFocus={e=> { e.target.scrollIntoView({behavior:'smooth', block:'center'}); autosize(e.target) }} style={{height: (local.fieldHeights?.basic?.[key]) ? local.fieldHeights.basic[key] + 'px' : undefined}} />
                           </div>
                         )}
                   </div>
