@@ -74,8 +74,10 @@ export default function PersonPage({person, onSave, onBack}){
   const avatarInputRef = useRef(null)
 
   // Migrate base64 photos to compressed blobs in IndexedDB
+  const migrationDoneRef = useRef(false)
   useEffect(()=>{
-    if(!local.photos?.length) return
+    if(migrationDoneRef.current) return
+    migrationDoneRef.current = true
     async function migratePhotos(){
       const photos = local.photos || []
       if(!photos.some(p => typeof p === 'string')) return
@@ -100,7 +102,10 @@ export default function PersonPage({person, onSave, onBack}){
   }, []) // Run only once on mount
 
   // Resolve photo URLs for id-based photos
+  const photoResolvedRef = useRef(false)
   useEffect(()=>{
+    if(photoResolvedRef.current) return
+    photoResolvedRef.current = true
     let cancelled = false
     ;(async()=>{
       const entries = local.photos || []
