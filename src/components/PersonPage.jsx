@@ -7,13 +7,11 @@ const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','�
 export default function PersonPage({person, onSave, onBack}){
   const [tab, setTab] = useState('basic')
   const [expandedPhoto, setExpandedPhoto] = useState(null)
-  const [cropMode, setCropMode] = useState(false)
-  const [cropImage, setCropImage] = useState(null)
+  const [showAvatarCrop, setShowAvatarCrop] = useState(false)
+  const [avatarCropImage, setAvatarCropImage] = useState(null)
   const cropCanvasRef = useRef(null)
-  const [cropPos, setCropPos] = useState({x: 0, y: 0})
-  const [cropSize, setCropSize] = useState(250)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState(null)
+  const cropXRef = useRef(0)
+  const cropYRef = useRef(0)
   if(!person) return (
     <div>
       <p>人物が見つかりません</p>
@@ -63,70 +61,45 @@ export default function PersonPage({person, onSave, onBack}){
   }
 
   async function handleAvatar(file){
-    try{
-      const id = await avatarStore.saveCompressedAvatar(file, { maxWidth: 512, quality: 0.75 })
-      setLocal({...local, avatarId: id, avatar: undefined})
-    }catch(e){
-      // fallback to dataURL if something goes wrong
-      const r = new FileReader()
-      r.onload = ()=> setLocal({...local, avatar: r.result})
-      r.readAsDataURL(file)
-    }
-  }
-
-  function handleAvatarClick(){
-    avatarInputRef.current && avatarInputRef.current.click()
-  }
-
-  function handleImageSelect(e){
-    const file = e.target.files?.[0]
-    if(!file) return
     const r = new FileReader()
     r.onload = ()=> {
-      setCropImage(r.result)
-      setCropMode(true)
+      setAvatarCropImage(r.result)
+      setShowAvatarCrop(true)
     }
     r.readAsDataURL(file)
   }
 
-  function applyCrop(){
-    if(!cropCanvasRef.current || !cropImage) return
+  function applyCropAvatar(){
     const canvas = cropCanvasRef.current
+    if(!canvas) return
     const ctx = canvas.getContext('2d')
     const img = new Image()
-    img.onload = ()=> {
-      const scaleX = img.width / 250
-      const scaleY = img.height / 250
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.drawImage(img, cropPos.x * scaleX, cropPos.y * scaleY, cropSize * scaleX, cropSize * scaleY, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob(blob=>{
-        if(blob) handleAvatar(blob)
-        setCropMode(false)
-        setCropImage(null)
-      }, 'image/jpeg', 0.85)
+    img.onload = async ()=>{
+      const size = Math.min(img.width, img.height)
+      const x = Math.max(0, Math.min(cropXRef.current, img.width - size))
+      const y = Math.max(0, Math.min(cropYRef.current, img.height - size))
+      
+      canvas.width = size
+      canvas.height = size
+      ctx.drawImage(img, x, y, size, size, 0, 0, size, size)
+      
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
+      
+      // 圧縮して保存
+      try{
+        const id = await avatarStore.saveCompressedAvatar(
+          new File([canvas.toBlob ? await new Promise(r=> canvas.toBlob(r, 'image/jpeg', 0.75)) : croppedDataUrl], 'avatar.jpg'),
+          { maxWidth: 512, quality: 0.75 }
+        )
+        setLocal({...local, avatarId: id, avatar: undefined})
+      }catch(e){
+        setLocal({...local, avatar: croppedDataUrl})
+      }
+      
+      setShowAvatarCrop(false)
+      setAvatarCropImage(null)
     }
-    img.src = cropImage
-  }
-
-  function handleCropMouseDown(e){
-    const rect = e.currentTarget.getBoundingClientRect()
-    setDragStart({x: e.clientX - rect.left, y: e.clientY - rect.top})
-    setIsDragging(true)
-  }
-
-  function handleCropMouseMove(e){
-    if(!isDragging || !dragStart) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const dx = (e.clientX - rect.left) - dragStart.x
-    const dy = (e.clientY - rect.top) - dragStart.y
-    const newX = Math.max(0, Math.min(250 - cropSize, cropPos.x + dx))
-    const newY = Math.max(0, Math.min(250 - cropSize, cropPos.y + dy))
-    setCropPos({x: newX, y: newY})
-    setDragStart({x: e.clientX - rect.left, y: e.clientY - rect.top})
-  }
-
-  function handleCropMouseUp(){
-    setIsDragging(false)
+    img.src = avatarCropImage
   }
 
   // manage objectURL for avatarId
@@ -322,8 +295,8 @@ export default function PersonPage({person, onSave, onBack}){
   return (
     <div className="person-page">
       <div className="person-header">
-        <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={handleAvatarClick} style={{cursor:'pointer'}} />
-        <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleImageSelect} />
+        <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
+        <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
         <div className="header-meta">
           <div className="name-row">
             <h2>{local.name}{calcAge(local.birthday) !== null && ` (${calcAge(local.birthday)})`}</h2>
@@ -633,34 +606,33 @@ export default function PersonPage({person, onSave, onBack}){
         </div>
       )}
 
-      {/* Crop Modal */}
-      {cropMode && cropImage && (
-        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:210,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:20,gap:12}}>
-          <div style={{color:'white',fontSize:14,marginBottom:8}}>クロップ範囲をドラッグして調整してください</div>
-          <canvas 
-            ref={cropCanvasRef} 
-            width={250} 
-            height={250}
-            onMouseDown={handleCropMouseDown}
-            onMouseMove={handleCropMouseMove}
-            onMouseUp={handleCropMouseUp}
-            onMouseLeave={handleCropMouseUp}
-            style={{
-              border:'2px solid white',
-              cursor: isDragging ? 'grabbing' : 'grab',
-              background:`url(${cropImage}) ${-cropPos.x}px ${-cropPos.y}px / auto auto no-repeat`,
-              backgroundSize: 'auto',
-              width: 250,
-              height: 250,
-              display: 'block'
-            }} 
-          />
-          <div style={{display:'flex',gap:12}}>
-            <button onClick={applyCrop} style={{padding:'8px 16px',background:'#8b9e8e',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>適用</button>
-            <button onClick={()=>{setCropMode(false);setCropImage(null)}} style={{padding:'8px 16px',background:'#a68080',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>キャンセル</button>
+      {/* Avatar Crop Modal */}
+      {showAvatarCrop && avatarCropImage && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:300,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:16}}>
+          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,position:'relative',maxWidth:'90vw',maxHeight:'70vh'}}>
+            <img src={avatarCropImage} alt="crop" style={{maxWidth:'100%',maxHeight:'100%',cursor:'move'}} 
+              onMouseDown={e=>{
+                const startX = e.clientX, startY = e.clientY
+                const startCropX = cropXRef.current, startCropY = cropYRef.current
+                const handleMove = (ev)=>{
+                  cropXRef.current = startCropX - (ev.clientX - startX)
+                  cropYRef.current = startCropY - (ev.clientY - startY)
+                }
+                const handleUp = ()=>{ document.removeEventListener('mousemove',handleMove); document.removeEventListener('mouseup',handleUp) }
+                document.addEventListener('mousemove',handleMove)
+                document.addEventListener('mouseup',handleUp)
+              }}
+            />
+            <div style={{position:'absolute',border:'2px solid white',width:200,height:200,pointerEvents:'none'}} />
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }}>キャンセル</button>
+            <button onClick={applyCropAvatar}>トリミング確定</button>
           </div>
         </div>
       )}
+
+      <canvas ref={cropCanvasRef} style={{display:'none'}} />
     </div>
   )
 }
