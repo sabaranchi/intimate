@@ -309,19 +309,19 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'name' && (
                       <div>
                         <div className="basic-label">名前</div>
-                        <textarea className="basic-value" value={local.name||''} onChange={e=> setLocal({...local, name:e.target.value})} />
+                        <textarea className="basic-value" value={local.name||''} onChange={e=>{ setLocal({...local, name:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.name) ? local.fieldHeights.basic.name + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'reading' && (
                       <div>
                         <div className="basic-label">読み仮名</div>
-                        <textarea className="basic-value" value={local.reading||''} onChange={e=> setLocal({...local, reading:e.target.value})} />
+                        <textarea className="basic-value" value={local.reading||''} onChange={e=>{ setLocal({...local, reading:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.reading) ? local.fieldHeights.basic.reading + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'nickname' && (
                       <div>
                         <div className="basic-label">ニックネーム</div>
-                        <textarea className="basic-value" value={local.nickname||''} onChange={e=> setLocal({...local, nickname:e.target.value})} />
+                        <textarea className="basic-value" value={local.nickname||''} onChange={e=>{ setLocal({...local, nickname:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.nickname) ? local.fieldHeights.basic.nickname + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'gender' && (
@@ -378,7 +378,7 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'address' && (
                       <div>
                         <div className="basic-label">住所</div>
-                        <textarea className="basic-value" value={local.address||''} onChange={e=> setLocal({...local, address:e.target.value})} />
+                        <textarea className="basic-value" value={local.address||''} onChange={e=>{ setLocal({...local, address:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.address) ? local.fieldHeights.basic.address + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'birthday' && (
@@ -390,25 +390,25 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'workplace' && (
                       <div>
                         <div className="basic-label">学校/会社</div>
-                        <textarea className="basic-value" value={local.workplace||''} onChange={e=> setLocal({...local, workplace:e.target.value})} />
+                        <textarea className="basic-value" value={local.workplace||''} onChange={e=>{ setLocal({...local, workplace:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.workplace) ? local.fieldHeights.basic.workplace + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'favourites' && (
                       <div>
                         <div className="basic-label">好きなもの</div>
-                        <textarea className="basic-value" value={(local.favourites||[]).join(',')} onChange={e=> setLocal({...local, favourites: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.favourites||[]).join(',')} onChange={e=>{ setLocal({...local, favourites: splitList(e.target.value)}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.favourites) ? local.fieldHeights.basic.favourites + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'dislikes' && (
                       <div>
                         <div className="basic-label">嫌いなもの</div>
-                        <textarea className="basic-value" value={(local.dislikes||[]).join(',')} onChange={e=> setLocal({...local, dislikes: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.dislikes||[]).join(',')} onChange={e=>{ setLocal({...local, dislikes: splitList(e.target.value)}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.dislikes) ? local.fieldHeights.basic.dislikes + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'hobbies' && (
                       <div>
                         <div className="basic-label">趣味</div>
-                        <textarea className="basic-value" value={(local.hobbies||[]).join(',')} onChange={e=> setLocal({...local, hobbies: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.hobbies||[]).join(',')} onChange={e=>{ setLocal({...local, hobbies: splitList(e.target.value)}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.hobbies) ? local.fieldHeights.basic.hobbies + 'px' : undefined}} />
                       </div>
                     )}
                         {/* render unknown/extra basic keys as generic label+input */}
