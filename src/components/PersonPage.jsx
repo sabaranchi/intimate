@@ -309,13 +309,13 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'name' && (
                       <div>
                         <div className="basic-label">名前</div>
-                        <input className="basic-value" value={local.name||''} onChange={e=> setLocal({...local, name:e.target.value})} />
+                        <textarea className="basic-value" value={local.name||''} onChange={e=> setLocal({...local, name:e.target.value})} />
                       </div>
                     )}
                     {key === 'reading' && (
                       <div>
                         <div className="basic-label">読み仮名</div>
-                        <input className="basic-value" value={local.reading||''} onChange={e=> setLocal({...local, reading:e.target.value})} />
+                        <textarea className="basic-value" value={local.reading||''} onChange={e=> setLocal({...local, reading:e.target.value})} />
                       </div>
                     )}
                     {key === 'nickname' && (
