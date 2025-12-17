@@ -31,12 +31,6 @@ export default function PersonPage({person, onSave, onBack}){
     el.addEventListener('wheel', handler, { passive: false })
     return ()=>{ el.removeEventListener('wheel', handler) }
   }, [showAvatarCrop])
-  if(!person) return (
-    <div>
-      <p>人物が見つかりません</p>
-      <button onClick={onBack}>戻る</button>
-    </div>
-  )
 
   function normalizePerson(p){
     const base = p || {}
@@ -72,6 +66,14 @@ export default function PersonPage({person, onSave, onBack}){
   const [editMode, setEditMode] = useState(false)
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
+
+  // Early return check must come AFTER all Hooks
+  if(!person) return (
+    <div>
+      <p>人物が見つかりません</p>
+      <button onClick={onBack}>戻る</button>
+    </div>
+  )
 
   // Migrate base64 photos to compressed blobs in IndexedDB
   const migrationDoneRef = useRef(false)
