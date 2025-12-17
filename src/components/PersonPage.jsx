@@ -702,7 +702,8 @@ export default function PersonPage({person, onSave, onBack}){
               width: 'min(90vw, 480px)',
               height: 'min(70vh, 480px)',
               touchAction: 'none',
-              overflow:'hidden'
+              background:'rgba(0,0,0,0.3)',
+              borderRadius:8
             }}
           >
             <img
@@ -726,10 +727,10 @@ export default function PersonPage({person, onSave, onBack}){
               width:440,
               height:440,
               transform:'translate(-50%, -50%)',
-              boxShadow:'0 0 0 9999px rgba(0,0,0,0.5)',
-              border:'2px solid #fff',
+              border:'3px solid #fff',
               borderRadius:8,
-              pointerEvents:'none'
+              pointerEvents:'none',
+              boxShadow:'0 0 0 9999px rgba(0,0,0,0.5)'
             }} />
           </div>
           <div style={{display:'flex',gap:8}}>
