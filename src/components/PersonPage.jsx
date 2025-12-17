@@ -96,10 +96,7 @@ export default function PersonPage({person, onSave, onBack}){
   }, []) // Run only once on mount
 
   // Resolve photo URLs for id-based photos
-  const photoResolvedRef = useRef(false)
   useEffect(()=>{
-    if(photoResolvedRef.current) return
-    photoResolvedRef.current = true
     let cancelled = false
     ;(async()=>{
       const entries = local.photos || []
@@ -115,7 +112,7 @@ export default function PersonPage({person, onSave, onBack}){
       if(!cancelled) setPhotoUrls(map)
     })()
     return ()=>{ cancelled = true }
-  }, [])
+  }, [local.photos])
 
   function save(){
     // normalize before saving
@@ -811,10 +808,11 @@ export default function PersonPage({person, onSave, onBack}){
               left:'50%',
               transform:'translateX(-50%)',
               display:'flex',
-              gap:8
-            }}>
-              <button onClick={applyCropAvatar}>トリミング確定</button>
-              <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }}>キャンセル</button>
+              gap:8,
+              pointerEvents:'auto'
+            }} onPointerDown={e=>e.stopPropagation()} onPointerMove={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()}>
+              <button onClick={applyCropAvatar} style={{pointerEvents:'auto'}}>トリミング確定</button>
+              <button onClick={()=>{ setShowAvatarCrop(false); setAvatarCropImage(null) }} style={{pointerEvents:'auto'}}>キャンセル</button>
             </div>
           </div>
         </div>
