@@ -100,6 +100,7 @@ export default function PersonPage({person, onSave, onBack}){
   }, [])
 
   // Resolve photo URLs for id-based photos
+  // Resolve photo URLs for id-based photos (trigger on person change only)
   useEffect(()=>{
     let cancelled = false
     ;(async()=>{
@@ -116,7 +117,7 @@ export default function PersonPage({person, onSave, onBack}){
       if(!cancelled) setPhotoUrls(map)
     })()
     return ()=>{ cancelled = true }
-  }, [local.photos])
+  }, [person])
 
   function save(){
     // normalize before saving
