@@ -9,10 +9,11 @@ export default function PersonPage({person, onSave, onBack}){
   const [expandedPhoto, setExpandedPhoto] = useState(null)
   const [cropMode, setCropMode] = useState(false)
   const [cropImage, setCropImage] = useState(null)
-  const [cropOffset, setCropOffset] = useState({x: 0, y: 0})
-  const [cropDragging, setCropDragging] = useState(false)
-  const [cropDragStart, setCropDragStart] = useState({x: 0, y: 0})
   const cropCanvasRef = useRef(null)
+  const [cropPos, setCropPos] = useState({x: 0, y: 0})
+  const [cropSize, setCropSize] = useState(250)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState(null)
   if(!person) return (
     <div>
       <p>人物が見つかりません</p>
@@ -90,48 +91,43 @@ export default function PersonPage({person, onSave, onBack}){
 
   function applyCrop(){
     if(!cropCanvasRef.current || !cropImage) return
-    const canvas = document.createElement('canvas')
+    const canvas = cropCanvasRef.current
     const ctx = canvas.getContext('2d')
-    const size = 250
-    canvas.width = size
-    canvas.height = size
     const img = new Image()
-    img.onload = ()=>{
-      ctx.drawImage(img, -cropOffset.x, -cropOffset.y, img.width, img.height)
+    img.onload = ()=> {
+      const scaleX = img.width / 250
+      const scaleY = img.height / 250
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, cropPos.x * scaleX, cropPos.y * scaleY, cropSize * scaleX, cropSize * scaleY, 0, 0, canvas.width, canvas.height)
       canvas.toBlob(blob=>{
         if(blob) handleAvatar(blob)
         setCropMode(false)
         setCropImage(null)
-        setCropOffset({x: 0, y: 0})
       }, 'image/jpeg', 0.85)
     }
     img.src = cropImage
   }
 
   function handleCropMouseDown(e){
-    setCropDragging(true)
-    setCropDragStart({x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y})
+    const rect = e.currentTarget.getBoundingClientRect()
+    setDragStart({x: e.clientX - rect.left, y: e.clientY - rect.top})
+    setIsDragging(true)
   }
 
   function handleCropMouseMove(e){
-    if(!cropDragging) return
-    setCropOffset({x: e.clientX - cropDragStart.x, y: e.clientY - cropDragStart.y})
+    if(!isDragging || !dragStart) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const dx = (e.clientX - rect.left) - dragStart.x
+    const dy = (e.clientY - rect.top) - dragStart.y
+    const newX = Math.max(0, Math.min(250 - cropSize, cropPos.x + dx))
+    const newY = Math.max(0, Math.min(250 - cropSize, cropPos.y + dy))
+    setCropPos({x: newX, y: newY})
+    setDragStart({x: e.clientX - rect.left, y: e.clientY - rect.top})
   }
 
   function handleCropMouseUp(){
-    setCropDragging(false)
+    setIsDragging(false)
   }
-
-  useEffect(()=>{
-    if(cropDragging){
-      document.addEventListener('mousemove', handleCropMouseMove)
-      document.addEventListener('mouseup', handleCropMouseUp)
-      return ()=>{
-        document.removeEventListener('mousemove', handleCropMouseMove)
-        document.removeEventListener('mouseup', handleCropMouseUp)
-      }
-    }
-  }, [cropDragging, cropDragStart])
 
   // manage objectURL for avatarId
   const [avatarUrl, setAvatarUrl] = useState(null)
@@ -640,13 +636,28 @@ export default function PersonPage({person, onSave, onBack}){
       {/* Crop Modal */}
       {cropMode && cropImage && (
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:210,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:20,gap:12}}>
-          <div style={{color:'white',fontSize:14,marginBottom:8}}>画像をドラッグして位置を調整</div>
-          <div style={{position:'relative',width:250,height:250,border:'2px solid white',overflow:'hidden',backgroundColor:'#333',cursor:'move'}} onMouseDown={handleCropMouseDown}>
-            <img src={cropImage} alt="crop" style={{position:'absolute',left:cropOffset.x,top:cropOffset.y,userSelect:'none'}} />
-          </div>
-          <div style={{display:'flex',gap:8}}>
-            <button onClick={applyCrop} style={{padding:'6px 12px',background:'#4CAF50',color:'white',border:'none',borderRadius:4,cursor:'pointer',fontSize:12}}>適用</button>
-            <button onClick={()=>{setCropMode(false);setCropImage(null);setCropOffset({x:0,y:0})}} style={{padding:'6px 12px',background:'#f44336',color:'white',border:'none',borderRadius:4,cursor:'pointer',fontSize:12}}>キャンセル</button>
+          <div style={{color:'white',fontSize:14,marginBottom:8}}>クロップ範囲をドラッグして調整してください</div>
+          <canvas 
+            ref={cropCanvasRef} 
+            width={250} 
+            height={250}
+            onMouseDown={handleCropMouseDown}
+            onMouseMove={handleCropMouseMove}
+            onMouseUp={handleCropMouseUp}
+            onMouseLeave={handleCropMouseUp}
+            style={{
+              border:'2px solid white',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              background:`url(${cropImage}) ${-cropPos.x}px ${-cropPos.y}px / auto auto no-repeat`,
+              backgroundSize: 'auto',
+              width: 250,
+              height: 250,
+              display: 'block'
+            }} 
+          />
+          <div style={{display:'flex',gap:12}}>
+            <button onClick={applyCrop} style={{padding:'8px 16px',background:'#8b9e8e',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>適用</button>
+            <button onClick={()=>{setCropMode(false);setCropImage(null)}} style={{padding:'8px 16px',background:'#a68080',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>キャンセル</button>
           </div>
         </div>
       )}
