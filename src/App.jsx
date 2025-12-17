@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MainList from './components/MainList'
 import CalendarPage from './components/CalendarPage'
 import PersonPage from './components/PersonPage'
 import * as friendLogic from './utils/friendLogic'
 import * as avatarStore from './utils/avatarStore'
+import * as db from './utils/db'
 
 const STORAGE_KEY = 'intimate_people_v1'
 const PIN_KEY = 'intimate_app_pin'
 const REMINDER_KEY = 'intimate_last_reminder_check'
 
-function loadPeople(){
+function loadPeopleLocal(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? JSON.parse(raw) : []
@@ -18,27 +19,32 @@ function loadPeople(){
   }
 }
 
+async function loadPeopleDb(){
+  try{
+    const data = await db.getKv(STORAGE_KEY)
+    return Array.isArray(data) ? data : []
+  }catch(e){
+    return []
+  }
+}
+
+async function savePeopleDb(p){
+  try{
+    await db.setKv(STORAGE_KEY, p)
+  }catch(e){
+    // fallback: best effort localStorage
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)) }catch(_e){}
+  }
+}
+
 export default function App(){
-  const [people, setPeople] = useState(loadPeople())
+  const [people, setPeople] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const migrationDoneRef = useRef(false)
   const [route, setRoute] = useState(window.location.hash || '#')
   const [locked, setLocked] = useState(true)
   const [pinMode, setPinMode] = useState(false)
   const [message, setMessage] = useState('')
-    // Save with quota guard
-    const safeSavePeople = (p)=>{
-      try{
-        const str = JSON.stringify(p)
-        // localStorage 目安: 5MB。少し余裕を持って 4.5MB 相当で打ち切り。
-        if(str.length > 4_500_000){
-          setMessage('保存サイズが上限に近いため保存をスキップしました。人数や写真を減らしてください。')
-          return
-        }
-        localStorage.setItem(STORAGE_KEY, str)
-      }catch(e){
-        setMessage('保存に失敗しました（容量超過の可能性）')
-      }
-    }
-
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
@@ -50,14 +56,45 @@ export default function App(){
     return ()=> window.removeEventListener('hashchange', h)
   },[])
 
-  useEffect(()=> safeSavePeople(people), [people])
+  // 初期ロード: IndexedDB -> (なければ) localStorage を取り込み
+  useEffect(()=>{
+    let cancelled = false
+    ;(async()=>{
+      const fromDb = await loadPeopleDb()
+      if(!cancelled && fromDb.length){
+        setPeople(fromDb)
+        setLoaded(true)
+        return
+      }
+      const fromLocal = loadPeopleLocal()
+      if(!cancelled){
+        setPeople(fromLocal)
+        setLoaded(true)
+      }
+      if(fromLocal.length){
+        await savePeopleDb(fromLocal)
+        localStorage.removeItem(STORAGE_KEY)
+      }
+    })()
+    return ()=>{ cancelled = true }
+  }, [])
+
+  // 保存: people が変わったら IndexedDB に保存（初期ロード完了後）
+  useEffect(()=>{
+    if(!loaded) return
+    savePeopleDb(people)
+    // localStorage を使わず容量圧迫を防ぐ
+    try{ localStorage.removeItem(STORAGE_KEY) }catch(e){}
+  }, [people, loaded])
 
   // migrate any inline data: URLs to IndexedDB on startup
   useEffect(()=>{
+    if(!loaded) return
+    if(migrationDoneRef.current) return
+    migrationDoneRef.current = true
     async function migrate(){
-      const src = loadPeople()
       let changed = false
-      const out = await Promise.all(src.map(async p => {
+      const out = await Promise.all((people||[]).map(async p => {
         if(p && typeof p.avatar === 'string' && p.avatar.startsWith('data:')){
           try{
             const resp = await fetch(p.avatar)
@@ -74,11 +111,11 @@ export default function App(){
       }))
       if(changed){
         setPeople(out)
-        safeSavePeople(out)
+        savePeopleDb(out)
       }
     }
     migrate()
-  }, [])
+  }, [loaded, people])
 
   useEffect(()=>{
     const stored = localStorage.getItem(PIN_KEY)
