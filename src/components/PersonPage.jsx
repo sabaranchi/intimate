@@ -577,11 +577,12 @@ export default function PersonPage({person, onSave, onBack}){
                             ) : (
                               <div className="basic-label">{local.extraFields?.[key]?.label || '項目名'}</div>
                             )}
-                            <input className="basic-value" value={local.extraFields?.[key]?.value || ''} onChange={e=>{
+                            <textarea className="basic-value" data-cat="basicExtra" data-id={key} ref={el=>{ if(el) autosize(el) }} value={local.extraFields?.[key]?.value || ''} onChange={e=>{
                               const arr = {...(local.extraFields||{})}
                               arr[key] = {...(arr[key]||{}), value: e.target.value}
                               setLocal({...local, extraFields: arr})
-                            }} onFocus={e=> e.target.scrollIntoView({behavior:'smooth', block:'center'})} />
+                              autosize(e.target)
+                            }} onFocus={e=> { e.target.scrollIntoView({behavior:'smooth', block:'center'}); autosize(e.target) }} style={{height: (local.fieldHeights?.basicExtra?.[key]) ? local.fieldHeights.basicExtra[key] + 'px' : undefined}} />
                           </div>
                         )}
                   </div>
