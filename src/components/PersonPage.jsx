@@ -96,7 +96,7 @@ export default function PersonPage({person, onSave, onBack}){
     const img = new Image()
     img.onload = async ()=>{
       // Compute crop rect from transform (centered viewport with square overlay)
-      const cropSize = 220 // viewport overlay size in CSS px
+      const cropSize = 440 // viewport overlay size in CSS px
       const s = cropScale
       const W = img.naturalWidth
       const H = img.naturalHeight
@@ -723,8 +723,8 @@ export default function PersonPage({person, onSave, onBack}){
               position:'absolute',
               top:'50%',
               left:'50%',
-              width:220,
-              height:220,
+              width:440,
+              height:440,
               transform:'translate(-50%, -50%)',
               boxShadow:'0 0 0 9999px rgba(0,0,0,0.5)',
               border:'2px solid #fff',
