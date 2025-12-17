@@ -7,6 +7,11 @@ const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','�
 export default function PersonPage({person, onSave, onBack}){
   const [tab, setTab] = useState('basic')
   const [expandedPhoto, setExpandedPhoto] = useState(null)
+  const [showCropModal, setShowCropModal] = useState(false)
+  const [cropImage, setCropImage] = useState(null)
+  const cropCanvasRef = useRef(null)
+  const cropStartRef = useRef({x:0, y:0})
+  const cropSelectRef = useRef({x:0, y:0, w:0, h:0})
   if(!person) return (
     <div>
       <p>人物が見つかりません</p>
@@ -65,6 +70,38 @@ export default function PersonPage({person, onSave, onBack}){
       r.onload = ()=> setLocal({...local, avatar: r.result})
       r.readAsDataURL(file)
     }
+  }
+
+  async function handleImageForCrop(file){
+    const r = new FileReader()
+    r.onload = ()=> {
+      setCropImage(r.result)
+      setShowCropModal(true)
+    }
+    r.readAsDataURL(file)
+  }
+
+  function applyCrop(){
+    if(!cropCanvasRef.current || !cropImage) return
+    const canvas = cropCanvasRef.current
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    img.onload = ()=> {
+      const {x, y, w, h} = cropSelectRef.current
+      if(w<=0 || h<=0) return
+      canvas.width = Math.round(w)
+      canvas.height = Math.round(h)
+      ctx.drawImage(img, x, y, w, h, 0, 0, w, h)
+      canvas.toBlob(blob=> {
+        const url = URL.createObjectURL(blob)
+        const reader = new FileReader()
+        reader.onload = ()=> handleAvatar(new File([blob], 'avatar.png', {type:'image/png'}))
+        reader.readAsDataURL(blob)
+        setShowCropModal(false)
+        setCropImage(null)
+      })
+    }
+    img.src = cropImage
   }
 
   // manage objectURL for avatarId
@@ -261,7 +298,7 @@ export default function PersonPage({person, onSave, onBack}){
     <div className="person-page">
       <div className="person-header">
         <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
-        <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
+        <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleImageForCrop(e.target.files[0]) }} />
         <div className="header-meta">
           <div className="name-row">
             <h2>{local.name}{calcAge(local.birthday) !== null && ` (${calcAge(local.birthday)})`}</h2>
@@ -309,7 +346,7 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'name' && (
                       <div>
                         <div className="basic-label">名前</div>
-                        <textarea className="basic-value" value={local.name||''} onChange={e=>{ setLocal({...local, name:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.name) ? local.fieldHeights.basic.name + 'px' : undefined}} />
+                        <textarea className="basic-value" data-cat="basic" data-id="name" value={local.name||''} onChange={e=>{ setLocal({...local, name:e.target.value}); autosize(e.target) }} onFocus={e=>{ autosize(e.target); e.target.scrollIntoView({behavior:'smooth', block:'center'}) }} style={{height: (local.fieldHeights?.basic?.name) ? local.fieldHeights.basic.name + 'px' : undefined}} />
                       </div>
                     )}
                     {key === 'reading' && (
@@ -570,7 +607,80 @@ export default function PersonPage({person, onSave, onBack}){
           <img src={expandedPhoto} alt="expanded" style={{maxWidth:'90%',maxHeight:'90%',borderRadius:8}} onClick={e=>e.stopPropagation()} />
         </div>
       )}
+      {/* Crop Modal */}
+      {showCropModal && cropImage && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.9)',zIndex:210,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:16}}>
+          <h3 style={{color:'#fff',margin:0}}>画像をクロップしてください</h3>
+          <CropCanvas imageSrc={cropImage} canvasRef={cropCanvasRef} cropSelectRef={cropSelectRef} />
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=> {setShowCropModal(false); setCropImage(null)}} style={{padding:'8px 16px'}}>キャンセル</button>
+            <button onClick={applyCrop} style={{padding:'8px 16px',background:'#4CAF50',color:'#fff'}}>適用</button>
+          </div>
+        </div>
+      )}
     </div>
+  )
+}
+
+function CropCanvas({imageSrc, canvasRef, cropSelectRef}){
+  const containerRef = useRef(null)
+  const imgRef = useRef(null)
+  const isDrawingRef = useRef(false)
+
+  useEffect(()=>{
+    const img = new Image()
+    img.onload = ()=> {
+      if(imgRef.current) imgRef.current.src = imageSrc
+    }
+    img.src = imageSrc
+  }, [imageSrc])
+
+  const handleMouseDown = (e)=> {
+    if(!imgRef.current) return
+    const rect = imgRef.current.getBoundingClientRect()
+    cropSelectRef.current.x = Math.max(0, e.clientX - rect.left)
+    cropSelectRef.current.y = Math.max(0, e.clientY - rect.top)
+    isDrawingRef.current = true
+  }
+
+  const handleMouseMove = (e)=> {
+    if(!isDrawingRef.current || !imgRef.current) return
+    const rect = imgRef.current.getBoundingClientRect()
+    const curX = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
+    const curY = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
+    cropSelectRef.current.w = curX - cropSelectRef.current.x
+    cropSelectRef.current.h = curY - cropSelectRef.current.y
+    redrawCanvas()
+  }
+
+  const handleMouseUp = ()=> {
+    isDrawingRef.current = false
+  }
+
+  const redrawCanvas = ()=> {
+    if(!canvasRef.current) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    img.onload = ()=> {
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.drawImage(img, 0, 0)
+      ctx.strokeStyle = 'rgba(255,100,100,0.8)'
+      ctx.lineWidth = 2
+      const {x, y, w, h} = cropSelectRef.current
+      ctx.strokeRect(x, y, w, h)
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.clearRect(x, y, w, h)
+    }
+    img.src = imageSrc
+  }
+
+  return (
+    <div ref={containerRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} style={{position:'relative',maxWidth:'80%',maxHeight:'60%',overflow:'auto',border:'2px solid #fff'}}>
+      <img ref={imgRef} style={{display:'block',maxWidth:'100%',height:'auto'}} />
+      <canvas ref={canvasRef} style={{display:'none'}} />    </div>
   )
 }
 
