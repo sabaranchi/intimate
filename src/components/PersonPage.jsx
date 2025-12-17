@@ -336,7 +336,7 @@ export default function PersonPage({person, onSave, onBack}){
     if(changed){
       setLocal(prev=> ({...prev, fieldHeights: newHeights}))
     }
-  }, [local])
+  }, [person])
 
   function addNew(){
     if(tab === 'basic'){
