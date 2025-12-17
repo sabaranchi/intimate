@@ -7,6 +7,7 @@ const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','�
 export default function PersonPage({person, onSave, onBack}){
   const [tab, setTab] = useState('basic')
   const [expandedPhoto, setExpandedPhoto] = useState(null)
+  const [photoUrls, setPhotoUrls] = useState({}) // photo id -> object URL
   const [showAvatarCrop, setShowAvatarCrop] = useState(false)
   const [avatarCropImage, setAvatarCropImage] = useState(null)
   const cropCanvasRef = useRef(null)
@@ -71,6 +72,48 @@ export default function PersonPage({person, onSave, onBack}){
   const [editMode, setEditMode] = useState(false)
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
+
+  // Migrate base64 photos to compressed blobs in IndexedDB
+  useEffect(()=>{
+    async function migratePhotos(){
+      const photos = local.photos || []
+      if(!photos.some(p => typeof p === 'string')) return
+      const converted = []
+      for(const ph of photos){
+        if(typeof ph === 'string'){
+          try{
+            const resp = await fetch(ph)
+            const blob = await resp.blob()
+            const id = await avatarStore.saveCompressedAvatar(blob, { maxWidth: 1280, quality: 0.8 })
+            converted.push({ id })
+          }catch(e){ converted.push(ph) }
+        }else{
+          converted.push(ph)
+        }
+      }
+      setLocal({...local, photos: converted})
+    }
+    migratePhotos()
+  }, [local.photos])
+
+  // Resolve photo URLs for id-based photos
+  useEffect(()=>{
+    let cancelled = false
+    ;(async()=>{
+      const entries = local.photos || []
+      const map = {}
+      for(const ph of entries){
+        if(ph && typeof ph === 'object' && ph.id){
+          try{
+            const url = await avatarStore.getAvatarURL(ph.id)
+            if(!cancelled && url) map[ph.id] = url
+          }catch(e){}
+        }
+      }
+      if(!cancelled) setPhotoUrls(map)
+    })()
+    return ()=>{ cancelled = true }
+  }, [local.photos])
 
   function save(){
     // normalize before saving
@@ -592,17 +635,35 @@ export default function PersonPage({person, onSave, onBack}){
                   <input type="file" accept="image/*" multiple onChange={async e=>{
                     const files = Array.from(e.target.files||[])
                     if(!files.length) return
-                    const readers = await Promise.all(files.map(f=> new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(f) })))
-                    const photos = [ ...(local.photos||[]), ...readers ]
-                    setLocal({...local, photos})
+                    const ids = []
+                    for(const f of files){
+                      try{
+                        const id = await avatarStore.saveCompressedAvatar(f, { maxWidth: 1280, quality: 0.8 })
+                        ids.push({ id })
+                      }catch(err){ /* skip on error */ }
+                    }
+                    if(ids.length){
+                      const photos = [ ...(local.photos||[]), ...ids ]
+                      setLocal({...local, photos})
+                    }
                     e.target.value=''
                   }} />
                 </div>
                 {(local.photos||[]).length>0 && (
                   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(90px,1fr))',gap:6,marginTop:6}}>
-                    {(local.photos||[]).map((ph, idx)=>(
+                    {(local.photos||[]).map((ph, idx)=>{
+                      const isObj = ph && typeof ph === 'object'
+                      const src = isObj && ph.id ? (photoUrls[ph.id] || '') : (typeof ph === 'string' ? ph : '')
+                      return (
                       <div key={idx} style={{position:'relative',cursor:'pointer'}}>
-                        <img src={ph} alt="memory" style={{width:'100%',borderRadius:6,border:'1px solid #7a5230',objectFit:'cover'}} onClick={()=>setExpandedPhoto(ph)} />
+                        <img src={src} alt="memory" loading="lazy" style={{width:'100%',borderRadius:6,border:'1px solid #7a5230',objectFit:'cover',minHeight:60,background:'#111'}} onClick={()=>{
+                          if(isObj && ph.id){
+                            const url = photoUrls[ph.id]
+                            if(url) setExpandedPhoto(url)
+                          }else{
+                            setExpandedPhoto(src)
+                          }
+                        }} />
                         {editMode && (
                           <button style={{position:'absolute',top:2,right:2,fontSize:12,padding:'2px 6px'}} onClick={()=>{
                             const arr = (local.photos||[]).slice()
@@ -610,8 +671,8 @@ export default function PersonPage({person, onSave, onBack}){
                             setLocal({...local, photos: arr})
                           }}>削除</button>
                         )}
-                      </div>
-                    ))}
+                      </div>)
+                    })}
                   </div>
                 )}
               </div>
