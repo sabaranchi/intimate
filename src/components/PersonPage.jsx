@@ -94,7 +94,7 @@ export default function PersonPage({person, onSave, onBack}){
           converted.push(ph)
         }
       }
-      setLocal({...local, photos: converted})
+      setLocal(prev => ({...prev, photos: converted}))
     }
     migratePhotos()
   }, [])
