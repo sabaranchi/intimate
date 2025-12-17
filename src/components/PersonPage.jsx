@@ -109,6 +109,16 @@ export default function PersonPage({person, onSave, onBack}){
     return 'パートナー'
   }
 
+  function calcAge(birthdayStr){
+    if(!birthdayStr) return null
+    const birth = new Date(birthdayStr)
+    const today = new Date()
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+    return age >= 0 ? age : null
+  }
+
   // スワイプ検出用
   const containerRef = useRef(null)
   const touchStartX = useRef(null)
@@ -254,7 +264,7 @@ export default function PersonPage({person, onSave, onBack}){
         <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
         <div className="header-meta">
           <div className="name-row">
-            <h2>{local.name}</h2>
+            <h2>{local.name}{calcAge(local.birthday) !== null && ` (${calcAge(local.birthday)})`}</h2>
             <select className="relation-select" value={local.relationshipStatus || 'unknown'} onChange={e=> setLocal({...local, relationshipStatus: e.target.value})}>
               <option value="unknown">不明</option>
               <option value="partner_yes">{getPartnerLabel(local.gender)}あり</option>
@@ -311,13 +321,17 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'nickname' && (
                       <div>
                         <div className="basic-label">ニックネーム</div>
-                        <input className="basic-value" value={local.nickname||''} onChange={e=> setLocal({...local, nickname:e.target.value})} />
+                        <textarea className="basic-value" value={local.nickname||''} onChange={e=> setLocal({...local, nickname:e.target.value})} />
                       </div>
                     )}
                     {key === 'gender' && (
                       <div>
                         <div className="basic-label">性別</div>
-                        <input className="basic-value" value={local.gender||''} onChange={e=> setLocal({...local, gender:e.target.value})} />
+                        <div className="chip-row">
+                          {['男', '女'].map(g=>(
+                            <button key={g} type="button" className={"chip " + (local.gender === g ? 'chip-on':'chip-off')} onClick={()=> setLocal({...local, gender: local.gender === g ? '' : g})}>{g}</button>
+                          ))}
+                        </div>
                       </div>
                     )}
                     {key === 'relationTags' && (
@@ -364,7 +378,7 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'address' && (
                       <div>
                         <div className="basic-label">住所</div>
-                        <input className="basic-value" value={local.address||''} onChange={e=> setLocal({...local, address:e.target.value})} />
+                        <textarea className="basic-value" value={local.address||''} onChange={e=> setLocal({...local, address:e.target.value})} />
                       </div>
                     )}
                     {key === 'birthday' && (
@@ -376,25 +390,25 @@ export default function PersonPage({person, onSave, onBack}){
                     {key === 'workplace' && (
                       <div>
                         <div className="basic-label">学校/会社</div>
-                        <input className="basic-value" value={local.workplace||''} onChange={e=> setLocal({...local, workplace:e.target.value})} />
+                        <textarea className="basic-value" value={local.workplace||''} onChange={e=> setLocal({...local, workplace:e.target.value})} />
                       </div>
                     )}
                     {key === 'favourites' && (
                       <div>
                         <div className="basic-label">好きなもの</div>
-                        <input className="basic-value" value={(local.favourites||[]).join(',')} onChange={e=> setLocal({...local, favourites: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.favourites||[]).join(',')} onChange={e=> setLocal({...local, favourites: splitList(e.target.value)})} />
                       </div>
                     )}
                     {key === 'dislikes' && (
                       <div>
                         <div className="basic-label">嫌いなもの</div>
-                        <input className="basic-value" value={(local.dislikes||[]).join(',')} onChange={e=> setLocal({...local, dislikes: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.dislikes||[]).join(',')} onChange={e=> setLocal({...local, dislikes: splitList(e.target.value)})} />
                       </div>
                     )}
                     {key === 'hobbies' && (
                       <div>
                         <div className="basic-label">趣味</div>
-                        <input className="basic-value" value={(local.hobbies||[]).join(',')} onChange={e=> setLocal({...local, hobbies: splitList(e.target.value)})} />
+                        <textarea className="basic-value" value={(local.hobbies||[]).join(',')} onChange={e=> setLocal({...local, hobbies: splitList(e.target.value)})} />
                       </div>
                     )}
                         {/* render unknown/extra basic keys as generic label+input */}

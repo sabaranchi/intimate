@@ -155,7 +155,7 @@ button:active{ transform: translateY(1px) }
 
 /* basic fields should visually match note/custom labels and values */
 .basic-label{padding:6px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
-.basic-value{padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);width:100%;box-sizing:border-box;font-size:var(--field-font-size);white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.basic-value{padding:var(--field-padding);border:var(--field-border-width) solid var(--field-border-color);border-radius:var(--field-border-radius);width:100%;box-sizing:border-box;font-size:var(--field-font-size);white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;font-family:var(--app-font-family);resize:none}
 .basic label, .notes label{padding:6px;border:none;background:transparent;font-weight:var(--label-font-weight);font-size:var(--label-font-size)}
 .basic input, .basic textarea, .notes textarea{width:100%;padding:var(--field-padding);font-size:var(--field-font-size);border:var(--field-border-width) solid var(--field-border-color);box-sizing:border-box;border-radius:var(--field-border-radius);font-family:var(--app-font-family);resize:none}
 .basic-actions button{margin-right:8px;margin-top:8px}
