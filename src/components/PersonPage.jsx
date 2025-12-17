@@ -67,14 +67,6 @@ export default function PersonPage({person, onSave, onBack}){
   const dragSrc = useRef(null)
   const avatarInputRef = useRef(null)
 
-  // Early return check must come AFTER all Hooks
-  if(!person) return (
-    <div>
-      <p>人物が見つかりません</p>
-      <button onClick={onBack}>戻る</button>
-    </div>
-  )
-
   // Migrate base64 photos to compressed blobs in IndexedDB
   const migrationDoneRef = useRef(false)
   useEffect(()=>{
@@ -343,6 +335,14 @@ export default function PersonPage({person, onSave, onBack}){
       setLocal(prev=> ({...prev, fieldHeights: newHeights}))
     }
   }, [local])
+
+  // Early return check must come AFTER all Hooks
+  if(!person) return (
+    <div>
+      <p>人物が見つかりません</p>
+      <button onClick={onBack}>戻る</button>
+    </div>
+  )
 
   function addNew(){
     if(tab === 'basic'){
