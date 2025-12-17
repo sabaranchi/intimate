@@ -6,6 +6,7 @@ const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','�
 
 export default function PersonPage({person, onSave, onBack}){
   const [tab, setTab] = useState('basic')
+  const [expandedPhoto, setExpandedPhoto] = useState(null)
   if(!person) return (
     <div>
       <p>人物が見つかりません</p>
@@ -475,8 +476,8 @@ export default function PersonPage({person, onSave, onBack}){
                 {(local.photos||[]).length>0 && (
                   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(90px,1fr))',gap:6,marginTop:6}}>
                     {(local.photos||[]).map((ph, idx)=>(
-                      <div key={idx} style={{position:'relative'}}>
-                        <img src={ph} alt="memory" style={{width:'100%',borderRadius:6,border:'1px solid #7a5230',objectFit:'cover'}} />
+                      <div key={idx} style={{position:'relative',cursor:'pointer'}}>
+                        <img src={ph} alt="memory" style={{width:'100%',borderRadius:6,border:'1px solid #7a5230',objectFit:'cover'}} onClick={()=>setExpandedPhoto(ph)} />
                         {editMode && (
                           <button style={{position:'absolute',top:2,right:2,fontSize:12,padding:'2px 6px'}} onClick={()=>{
                             const arr = (local.photos||[]).slice()
@@ -548,6 +549,13 @@ export default function PersonPage({person, onSave, onBack}){
           </div>
         )}
       </div>
+
+      {/* Photo Modal */}
+      {expandedPhoto && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.8)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setExpandedPhoto(null)}>
+          <img src={expandedPhoto} alt="expanded" style={{maxWidth:'90%',maxHeight:'90%',borderRadius:8}} onClick={e=>e.stopPropagation()} />
+        </div>
+      )}
     </div>
   )
 }
