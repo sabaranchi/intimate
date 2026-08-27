@@ -44,7 +44,6 @@ button:active{ transform: translateY(1px) }
 .hearts{color:#b0a090}
 .heart.filled{color:#a02020;margin-right:4px;font-size:18px}
 .last-interaction{font-size:12px;opacity:0.9}
-.daily-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
 
 /* Emoji hearts: display naturally without color override */
 .heart{ margin-right:4px; font-size: 18px; line-height: 1 }
