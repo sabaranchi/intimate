@@ -103,12 +103,14 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
 
     {definition?<main className="stage-content flow-content">
       <section className="communication-card conversation-flow-card">
-        <div className="section-heading flow-heading"><div><p className="eyebrow">CONVERSATION FLOW</p><h3>会話の5レベル・フロー</h3><p>事実に感情を重ね、二人だけに通じる文脈へ。今の関係に合う深さを選びます。</p></div><span className="level-badge">LEVEL {flow.id}</span></div>
+        <div className="section-heading flow-heading"><div><p className="eyebrow">CONVERSATION FLOW</p><h3>会話の10レベル・フロー</h3><p>安心から本音、二人の文脈、自然な誘いへ。今の関係に合う深さを選びます。</p></div><span className="level-badge">LEVEL {flow.id}</span></div>
         <div className="flow-level-tabs" role="radiogroup" aria-label="会話のレベル">{conversationFlow.CONVERSATION_LEVELS.map(item=><button type="button" role="radio" aria-checked={flow.id===item.id} className={flow.id===item.id?'flow-level-button selected':'flow-level-button'} onClick={()=>updateCommunication('conversationFlowLevel',item.id)} key={item.id}><b>{item.id}</b><span>{item.title}</span></button>)}</div>
         <div className="flow-level-body">
           <div className="flow-formula"><small>FLOW</small><strong>{flow.formula}</strong><p>{flow.purpose}</p></div>
           <div className="flow-detail-grid"><div><h4>会話の進め方</h4><ol className="flow-moves">{flow.moves.map(move=><li key={move}>{move}</li>)}</ol></div><div><h4>自然な言い方</h4><div className="flow-examples">{flow.examples.map(example=><button type="button" key={example} onClick={()=>updateStepPlan({draft:example,status:'',outcome:''})}>{example}<small>次の一歩に使う</small></button>)}</div></div></div>
           <div className="flow-collect"><strong>このレベルで覚えておくこと</strong>{flow.collect.map(item=><span key={item}>{item}</span>)}</div>
+          <div className="flow-engine-grid"><article className="flow-engine-card"><small>DEEPEN</small><strong>深い関係を作る</strong><p>{flow.deepener}</p></article><article className="flow-engine-card"><small>SOFT HYPOTHESIS</small><strong>仮説で本音を広げる</strong><p>{flow.hypothesis}</p></article><article className="flow-engine-card invite"><small>EASY-OUT OFFER</small><strong>断りやすく誘う</strong><p>{flow.invitation}</p></article></div>
+          <div className="advance-signals"><strong>次のレベルへ進める相互サイン</strong><div>{flow.advanceSignals.map(signal=><span key={signal}>✓ {signal}</span>)}</div></div>
           <p className="ethical-note">{flow.caution}</p>
           <label className="flow-note-label">この人との会話メモ<textarea rows="2" value={profile.conversationFlowNotes?.[flow.id]||''} onChange={event=>updateFlowNote(flow.id,event.target.value)} placeholder="使えそうな話題、前に出た言葉、次に聞きたいこと"/></label>
         </div>

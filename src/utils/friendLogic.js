@@ -183,7 +183,7 @@ export function normalizeCommunication(personOrProfile){
   profile.stepPlans=source.stepPlans && typeof source.stepPlans==='object' ? source.stepPlans : {}
   profile.nextStepSafety={...createEmptyCommunicationProfile().nextStepSafety,...(source.nextStepSafety||{})}
   const flowLevel=Number(source.conversationFlowLevel)
-  profile.conversationFlowLevel=Number.isInteger(flowLevel) && flowLevel>=1 && flowLevel<=5 ? flowLevel : null
+  profile.conversationFlowLevel=Number.isInteger(flowLevel) && flowLevel>=1 && flowLevel<=10 ? flowLevel : null
   profile.conversationFlowNotes=source.conversationFlowNotes && typeof source.conversationFlowNotes==='object' ? source.conversationFlowNotes : {}
   if(!profile.lastConversationNote && personOrProfile?.lastConversationSummary) profile.lastConversationNote=personOrProfile.lastConversationSummary
   if(!profile.lastConversationDate && personOrProfile?.lastInteractionDate) profile.lastConversationDate=personOrProfile.lastInteractionDate
