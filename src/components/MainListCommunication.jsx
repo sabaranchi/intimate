@@ -2,6 +2,7 @@ import React,{useEffect,useRef,useState} from 'react'
 import * as avatarStore from '../utils/avatarStore'
 import * as friendLogic from '../utils/friendLogic'
 import * as stageGuidance from '../utils/stageGuidance'
+import * as conversationFlow from '../utils/conversationFlow'
 
 const REL_PRESETS=['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
@@ -48,13 +49,14 @@ export default function MainListCommunication({people,onToggleDrawer,onDeleteMul
       const defaultStep=stage?stageGuidance.getMicroSteps(person,stage)[0]:''
       const nextStep=plan?.draft||defaultStep
       const lastDate=friendLogic.getLastConversationDate(person)
+      const flowLevel=profile.conversationFlowLevel||conversationFlow.getSuggestedConversationLevel(stage)
       return <li className="person-row communication-person-row flow-person-row" key={person.id} style={{'--stage-progress':`${(stage||0)*10}%`}} onClick={()=>{if(!deleteMode)window.location.hash=`#person:${person.id}`}}>
         {deleteMode&&<input type="checkbox" checked={selected.has(person.id)} onChange={()=>toggleSelected(person.id)} onClick={event=>event.stopPropagation()}/>}<img className="avatar" src={avatarMap[person.id]||'/icon-192.png'} alt=""/>
         <div className="meta"><div className="person-title-line"><strong className="name">{person.name}</strong><span className={stage?'intimacy-badge':'intimacy-badge provisional'}>{stage?`Stage ${stage} · ${definition.title}`:'段階未設定'}</span></div>
           <div className="stage-progress-line"><span style={{width:`${(stage||0)*10}%`}}></span></div>
-          <div className="hearts compact-hearts" aria-label={stage?`第${stage}段階`:'段階未設定'}>{Array.from({length:10}).map((_,index)=><span key={index} className={stage&&index<stage?'heart filled':'heart'}>{stage&&index<stage?'❤️':'🖤'}</span>)}</div>
+          <div className="hearts compact-hearts" aria-label={stage?`第${stage}段階`:'段階未設定'}>{Array.from({length:10}).map((_,index)=><span key={index} className={stage&&index<stage?'heart filled':'heart'}>{stage&&index<stage?'❤️':'♡'}</span>)}</div>
           {stage&&<div className={plan?.status==='planned'?'next-step-preview planned':'next-step-preview'}><small>{plan?.status==='planned'?'次の一歩・予定済み':'次の一歩'}</small><p>{nextStep}</p></div>}
-          <div className="communication-preview"><span>会話 {lastDate||'未記録'}</span>{stage&&<span>相互サイン {gate.checked}/{gate.total}</span>}{stage&&<span>人物理解 {known}/{guide.length}</span>}</div>
+          <div className="communication-preview"><span>会話 {lastDate||'未記録'}</span>{stage&&<span>会話 Lv.{flowLevel}</span>}{stage&&<span>相互サイン {gate.checked}/{gate.total}</span>}{stage&&<span>人物理解 {known}/{guide.length}</span>}</div>
         </div><span className="row-arrow">›</span>
       </li>})}</ul>{!sorted.length&&<p className="empty-state">該当する人はいません</p>}
   </div>

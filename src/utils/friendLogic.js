@@ -167,6 +167,8 @@ export function createEmptyCommunicationProfile(){
     stageChecks:{},
     stepPlans:{},
     nextStepSafety:{oneStep:false, roomToDecline:false, reciprocated:false},
+    conversationFlowLevel:null,
+    conversationFlowNotes:{},
     conversationDepth:null, atmosphere:null, myApproachability:null, theirApproachability:null, addressingCloseness:null,
     iCallThem:'', theyCallMe:'', recentTopics:'', lastConversationNote:'', lastConversationDate:'', updatedAt:''
   }
@@ -180,6 +182,9 @@ export function normalizeCommunication(personOrProfile){
   profile.stageChecks=source.stageChecks && typeof source.stageChecks==='object' ? source.stageChecks : {}
   profile.stepPlans=source.stepPlans && typeof source.stepPlans==='object' ? source.stepPlans : {}
   profile.nextStepSafety={...createEmptyCommunicationProfile().nextStepSafety,...(source.nextStepSafety||{})}
+  const flowLevel=Number(source.conversationFlowLevel)
+  profile.conversationFlowLevel=Number.isInteger(flowLevel) && flowLevel>=1 && flowLevel<=5 ? flowLevel : null
+  profile.conversationFlowNotes=source.conversationFlowNotes && typeof source.conversationFlowNotes==='object' ? source.conversationFlowNotes : {}
   if(!profile.lastConversationNote && personOrProfile?.lastConversationSummary) profile.lastConversationNote=personOrProfile.lastConversationSummary
   if(!profile.lastConversationDate && personOrProfile?.lastInteractionDate) profile.lastConversationDate=personOrProfile.lastInteractionDate
   return profile
