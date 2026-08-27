@@ -34,7 +34,7 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
     setLocal(previous=>{
       const profile=friendLogic.normalizeCommunication(previous)
       if(profile.relationshipStage===nextStage)return previous
-      return {...previous,communication:{...profile,relationshipStage:nextStage,updatedAt:new Date().toISOString()}}
+      return {...previous,communication:{...profile,relationshipStage:nextStage,conversationFlowLevel:nextStage,updatedAt:new Date().toISOString()}}
     })
   }
 
@@ -71,7 +71,7 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
   function saveAndBack(){const patch=buildPatch();onSave(patch);onBack()}
   function openDetails(){const patch=buildPatch();setLocal(patch);onSave(patch);setShowDetails(true)}
 
-  if(showDetails)return <PersonPage person={local} onSave={patch=>{const merged=buildPatch({...local,...patch});setLocal(merged);onSave(merged)}} onBack={onBack}/>
+  if(showDetails)return <PersonPage person={local} onSave={patch=>{const merged=buildPatch({...local,...patch});setLocal(merged);onSave(merged)}} onBack={()=>setShowDetails(false)}/>
 
   const profile=friendLogic.normalizeCommunication(local)
   const stage=profile.relationshipStage
@@ -85,7 +85,7 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
   const outcomeMessage=stageGuidance.getOutcomeMessage(plan.outcome)
   const collectionGuide=stage?stageGuidance.getCollectionGuide(stage):[]
   const collectionFilled=collectionGuide.filter(item=>stageGuidance.isCollectionFilled(local,item)).length
-  const flowLevel=profile.conversationFlowLevel||conversationFlow.getSuggestedConversationLevel(stage)
+  const flowLevel=conversationFlow.getSuggestedConversationLevel(stage)
   const flow=conversationFlow.getConversationLevel(flowLevel)
 
   return <div className="person-page communication-page flow-page warm-page">
@@ -98,13 +98,13 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
     </header>
 
     <section className="stage-picker-card flow-stage-picker"><div className="section-heading"><p className="eyebrow">CURRENT STAGE</p><h3>今の関係の現在地</h3></div><p className="stage-help">回数ではなく、相手から返ってきている最も高い段階を選びます。</p>
-      <div className="stage-picker" role="radiogroup" aria-label="現在の関係段階">{friendLogic.RELATIONSHIP_STAGES.map(item=><button type="button" role="radio" aria-checked={stage===item.id} className={stage===item.id?'stage-dot selected':'stage-dot'} key={item.id} onClick={()=>chooseStage(item.id)}><b>{item.id}</b><small>{item.title}</small></button>)}</div>
+      <div className="stage-picker" role="radiogroup" aria-label="現在の関係段階">{friendLogic.RELATIONSHIP_STAGES.map(item=>{const linkedFlow=conversationFlow.getConversationLevel(item.id);return <button type="button" role="radio" aria-checked={stage===item.id} className={stage===item.id?'stage-dot selected':'stage-dot'} key={item.id} onClick={()=>chooseStage(item.id)}><b>{item.id}</b><small>{item.title}</small><em>{linkedFlow.title}</em></button>})}</div>
     </section>
 
     {definition?<main className="stage-content flow-content">
       <section className="communication-card conversation-flow-card">
-        <div className="section-heading flow-heading"><div><p className="eyebrow">CONVERSATION FLOW</p><h3>会話の10レベル・フロー</h3><p>安心から本音、二人の文脈、自然な誘いへ。今の関係に合う深さを選びます。</p></div><span className="level-badge">LEVEL {flow.id}</span></div>
-        <div className="flow-level-tabs" role="radiogroup" aria-label="会話のレベル">{conversationFlow.CONVERSATION_LEVELS.map(item=><button type="button" role="radio" aria-checked={flow.id===item.id} className={flow.id===item.id?'flow-level-button selected':'flow-level-button'} onClick={()=>updateCommunication('conversationFlowLevel',item.id)} key={item.id}><b>{item.id}</b><span>{item.title}</span></button>)}</div>
+        <div className="section-heading flow-heading"><div><p className="eyebrow">STAGE {stage} = CONVERSATION LEVEL {flow.id}</p><h3>今の現在地に合う会話</h3><p>関係Stageと会話Levelは同じ番号で連動します。段階を変えると、会話の深さも自動で切り替わります。</p></div><span className="level-badge">LEVEL {flow.id}</span></div>
+        <div className="level-context-band"><span>関係</span><strong>{definition.title}</strong><i>→</i><span>会話</span><strong>{flow.title}</strong></div>
         <div className="flow-level-body">
           <div className="flow-formula"><small>FLOW</small><strong>{flow.formula}</strong><p>{flow.purpose}</p></div>
           <div className="flow-detail-grid"><div><h4>会話の進め方</h4><ol className="flow-moves">{flow.moves.map(move=><li key={move}>{move}</li>)}</ol></div><div><h4>自然な言い方</h4><div className="flow-examples">{flow.examples.map(example=><button type="button" key={example} onClick={()=>updateStepPlan({draft:example,status:'',outcome:''})}>{example}<small>次の一歩に使う</small></button>)}</div></div></div>
@@ -133,7 +133,7 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
           <div className="section-heading with-progress"><div><p className="eyebrow">LEARN NATURALLY</p><h3>この段階で自然に知っておくこと</h3></div><span>{collectionFilled}/{collectionGuide.length}</span></div>
           <p className="card-intro">質問攻めにせず、相手が自然に話した時に記録します。ここへの入力は基本情報・メモにも反映されます。</p>
           <div className="knowledge-list">{collectionGuide.map(item=>{const filled=stageGuidance.isCollectionFilled(local,item);return <article className={filled?'knowledge-item filled':'knowledge-item'} key={`${item.source}-${item.key}`}><div className="knowledge-heading"><span className="source-chip">{item.source==='notes'?'メモ':'基本情報'}</span><strong>{item.label}</strong>{filled&&<em>記録済み</em>}</div><p>{item.prompt}</p><blockquote>{item.ask}</blockquote><textarea rows="2" value={stageGuidance.formatCollectionValue(stageGuidance.getCollectionValue(local,item))} onChange={event=>updateCollection(item,event.target.value)} placeholder={item.placeholder}/></article>})}</div>
-          <button type="button" className="text-link-button" onClick={openDetails}>基本情報・メモをまとめて見る →</button>
+          <button type="button" className="text-link-button" onClick={openDetails}>基本情報・出来事・メモをまとめて見る →</button>
         </section>
 
         <section className="communication-card gate-card">
@@ -154,6 +154,6 @@ export default function CommunicationPersonPage({person,onSave,onBack}){
       </div>
     </main>:<div className="stage-empty"><strong>まず現在地を選んでください</strong><p>「自分ができること」ではなく「相手から返ってきている反応」で選ぶと安全です。</p></div>}
 
-    <nav className="communication-actions"><button type="button" onClick={saveAndBack}>← 保存して戻る</button><button type="button" className="secondary" onClick={openDetails}>基本情報・メモ・写真</button></nav>
+    <nav className="communication-actions"><button type="button" onClick={saveAndBack}>← 保存して戻る</button><button type="button" className="secondary" onClick={openDetails}>人物情報・出来事・メモ</button></nav>
   </div>
 }

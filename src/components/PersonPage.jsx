@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import * as friendLogic from '../utils/friendLogic'
 import * as avatarStore from '../utils/avatarStore'
+import * as conversationFlow from '../utils/conversationFlow'
 
 const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
@@ -418,9 +419,21 @@ export default function PersonPage({person, onSave, onBack}){
     dragSrc.current = null
   }
 
+  const communication = friendLogic.normalizeCommunication(local)
+  const currentStage = communication.relationshipStage || 1
+  const stageDefinition = friendLogic.getStageDefinition(currentStage)
+  const currentFlow = conversationFlow.getConversationLevel(currentStage)
+  const tabMeta = {
+    basic:{eyebrow:'PROFILE',title:'その人らしさの土台',description:'呼び方、所属、好みなど、会話の入口になる情報をまとめます。',count:(local.basicOrder||[]).length+(local.customFields||[]).length},
+    events:{eyebrow:'MEMORIES',title:'一緒に覚えておきたい出来事',description:'写真とエピソードを、あとで会話へ戻せる形で残します。',count:(local.events||[]).length},
+    notes:{eyebrow:'CONVERSATION NOTES',title:'次の会話につながるメモ',description:'本音、価値観、前回の続きなど、覚えておきたい文脈を整理します。',count:6+(local.notes?.entries||[]).length}
+  }
+  const activeTab = tabMeta[tab]
+
   return (
-    <div className="person-page">
-      <div className="person-header">
+    <div className="person-page person-detail-page">
+      <div className="person-header detail-hero">
+        <button type="button" className="detail-back-button" onClick={save}>← 会話フロー</button>
         <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
         <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
         <div className="header-meta">
@@ -436,30 +449,34 @@ export default function PersonPage({person, onSave, onBack}){
           </div>
           <div className="hearts header-hearts">
             {Array.from({length:10}).map((_,i)=>{
-              const pct = Math.round((local.friendScore||0)/10)
+              const pct = currentStage
               const filled = i < pct
               const filledChar = '❤️'
-              const emptyChar = '🖤'
+              const emptyChar = '♡'
               return <span key={i} className={"heart " + (filled? 'filled':'')}>{filled ? filledChar : emptyChar}</span>
             })}
           </div>
         </div>
       </div>
 
-      <div className="tabs">
+      <section className="detail-stage-summary detail-stage-standalone"><div className="detail-stage-number"><small>CURRENT</small><strong>{currentStage}</strong><span>/ 10</span></div><div className="detail-stage-copy"><span>関係 Stage {currentStage}</span><strong>{stageDefinition?.title}</strong><p>会話 Level {currentFlow.id} · {currentFlow.title}</p></div><div className="stage-link-line"><span>関係の現在地</span><i>→</i><span>使う会話の深さ</span><b>同じ番号で連動</b></div></section>
+
+      <div className="tabs detail-navigation">
         <div className="tabs-top">
-          <button className={tab==='basic' ? 'active' : ''} onClick={()=>setTab('basic')}>基本情報</button>
-          <button className={tab==='events' ? 'active' : ''} onClick={()=>setTab('events')}>出来事</button>
-          <button className={tab==='notes' ? 'active' : ''} onClick={()=>setTab('notes')}>メモ</button>
+          <button className={tab==='basic' ? 'active' : ''} onClick={()=>setTab('basic')}><span>◌</span><strong>基本情報</strong><small>{tabMeta.basic.count}</small></button>
+          <button className={tab==='events' ? 'active' : ''} onClick={()=>setTab('events')}><span>◇</span><strong>出来事</strong><small>{tabMeta.events.count}</small></button>
+          <button className={tab==='notes' ? 'active' : ''} onClick={()=>setTab('notes')}><span>✎</span><strong>メモ</strong><small>{tabMeta.notes.count}</small></button>
         </div>
         <div className="tabs-bottom">
-          <button className="back-btn" onClick={()=> save()}>← 戻る</button>
-          <button className="edit-btn" onClick={()=> setEditMode(e=>!e)}>{editMode? '完了' : '編集'}</button>
-          <button className="add-btn" onClick={()=> addNew()}>追加</button>
+          <button className="back-btn" onClick={save}>保存して戻る</button>
+          <button className="edit-btn" onClick={()=> setEditMode(e=>!e)}>{editMode? '✓ 編集完了' : '並べ替え・削除'}</button>
+          <button className="add-btn" onClick={addNew}>＋ {tab==='basic'?'項目':tab==='events'?'出来事':'メモ'}を追加</button>
         </div>
       </div>
 
-      <div className="tab-body" ref={containerRef}>
+      <section className="detail-section-intro"><div><p className="eyebrow">{activeTab.eyebrow}</p><h3>{activeTab.title}</h3><p>{activeTab.description}</p></div><span>{activeTab.count} items</span></section>
+
+      <div className="tab-body detail-body" ref={containerRef}>
         {tab==='basic' && (
           <div className="basic">
             <div className="basic-list">
@@ -743,6 +760,8 @@ export default function PersonPage({person, onSave, onBack}){
           </div>
         )}
       </div>
+
+      <nav className="detail-save-bar"><span>入力内容は会話フローの人物情報にも反映されます</span><button type="button" onClick={save}>✓ 保存して会話フローへ</button></nav>
 
       {/* Photo Modal */}
       {expandedPhoto && (
