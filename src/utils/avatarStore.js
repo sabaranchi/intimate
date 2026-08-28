@@ -22,6 +22,17 @@ function saveAvatarBlob(blob){
   }))
 }
 
+// Store a blob under a specific id (used when restoring a backup).
+function putAvatarBlob(id, blob){
+  if(!id) return Promise.reject(new Error('id required'))
+  return openDB().then(db => new Promise((res, rej)=>{
+    const tx = db.transaction('avatars', 'readwrite')
+    const r = tx.objectStore('avatars').put(blob, id)
+    r.onsuccess = ()=> { res(id); db.close() }
+    r.onerror = ()=> { rej(r.error); db.close() }
+  }))
+}
+
 function getAvatarBlob(id){
   if(!id) return Promise.resolve(null)
   return openDB().then(db => new Promise((res, rej)=>{
@@ -88,4 +99,18 @@ async function saveCompressedAvatar(file, opts = {}){
   }
 }
 
-export { saveAvatarBlob, saveCompressedAvatar, getAvatarBlob, getAvatarURL, deleteAvatar }
+function blobToDataURL(blob){
+  return new Promise((res, rej)=>{
+    const reader = new FileReader()
+    reader.onload = ()=> res(reader.result)
+    reader.onerror = ()=> rej(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
+
+async function dataURLToBlob(dataURL){
+  const resp = await fetch(dataURL)
+  return resp.blob()
+}
+
+export { saveAvatarBlob, putAvatarBlob, saveCompressedAvatar, getAvatarBlob, getAvatarURL, deleteAvatar, blobToDataURL, dataURLToBlob }

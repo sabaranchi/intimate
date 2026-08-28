@@ -51,6 +51,12 @@ export default function AppCommunication(){
     return ()=> window.removeEventListener('hashchange', handleHashChange)
   }, [])
 
+  // Ask the browser to keep our IndexedDB data (Safari evicts non-persistent
+  // storage after ~7 days unused — unacceptable for a relationship journal).
+  useEffect(()=>{
+    try{ navigator.storage && navigator.storage.persist && navigator.storage.persist() }catch(e){}
+  }, [])
+
   useEffect(()=>{
     let active = true
     ;(async()=>{
@@ -66,6 +72,12 @@ export default function AppCommunication(){
   useEffect(()=>{
     if(loaded) savePeople(people)
   }, [people, loaded])
+
+  useEffect(()=>{
+    if(!message) return
+    const t = setTimeout(()=> setMessage(''), 4000)
+    return ()=> clearTimeout(t)
+  }, [message])
 
   // Keep all existing photos while moving old inline images into IndexedDB.
   useEffect(()=>{
@@ -118,25 +130,57 @@ export default function AppCommunication(){
     setShowCreateModal(false)
   }
 
-  function exportJSON(){
-    const blob = new Blob([JSON.stringify(people, null, 2)], {type: 'application/json'})
+  function collectAssetIds(list){
+    const ids = new Set()
+    for(const p of (list || [])){
+      if(p?.avatarId) ids.add(p.avatarId)
+      for(const ph of (p?.photos || [])){ if(ph && typeof ph === 'object' && ph.id) ids.add(ph.id) }
+    }
+    return [...ids]
+  }
+
+  async function exportJSON(){
+    let assets = {}
+    try{
+      for(const id of collectAssetIds(people)){
+        const blob = await avatarStore.getAvatarBlob(id)
+        if(blob) assets[id] = await avatarStore.blobToDataURL(blob)
+      }
+    }catch(e){}
+    const payload = { format: 'intimate-backup', version: 2, exportedAt: new Date().toISOString(), people, assets }
+    const blob = new Blob([JSON.stringify(payload)], {type: 'application/json'})
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'people_export.json'
+    link.download = `intimate-backup-${new Date().toISOString().slice(0, 10)}.json`
     link.click()
     URL.revokeObjectURL(url)
+    try{ localStorage.setItem('intimate_last_export', new Date().toISOString()) }catch(e){}
+    setMessage(`${people.length}人・写真${Object.keys(assets).length}件を書き出しました`)
   }
 
   function importJSON(file){
     if(!file) return
     const reader = new FileReader()
-    reader.onload = ()=>{
+    reader.onload = async ()=>{
       try{
         const parsed = JSON.parse(reader.result)
-        if(!Array.isArray(parsed)) throw new Error('invalid data')
-        setPeople(parsed)
-        setMessage('インポートしました')
+        const incoming = Array.isArray(parsed) ? parsed : parsed?.people
+        if(!Array.isArray(incoming)) throw new Error('invalid data')
+        if(people.length && !window.confirm(
+          `現在の${people.length}人を、読み込むデータ（${incoming.length}人）で置き換えます。\n`
+          + `元に戻せません。心配な場合は先にエクスポートしてください。\n\n続けますか？`
+        )) return
+        const assets = (!Array.isArray(parsed) && parsed?.assets) || {}
+        let restored = 0
+        for(const [id, dataURL] of Object.entries(assets)){
+          try{
+            await avatarStore.putAvatarBlob(id, await avatarStore.dataURLToBlob(dataURL))
+            restored++
+          }catch(e){}
+        }
+        setPeople(incoming)
+        setMessage(`${incoming.length}人・写真${restored}件を読み込みました`)
       }catch(e){ setMessage('読み込めないファイルです') }
     }
     reader.readAsText(file)
@@ -157,6 +201,7 @@ export default function AppCommunication(){
 
   return (
     <div className="app-root">
+      {message && <div className="app-toast" role="status" onClick={()=> setMessage('')}>{message}</div>}
       {drawerOpen && (
         <div className="drawer communication-drawer">
           <button onClick={()=>{ setShowCreateModal(true); setDrawerOpen(false) }}>新しい人物</button>

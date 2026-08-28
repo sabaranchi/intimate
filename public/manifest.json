@@ -1,12 +1,12 @@
 {
-  "name": "親密管理アプリ",
-  "short_name": "親密",
+  "name": "関係性グラデーション",
+  "short_name": "関係",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "description": "人間関係を管理するPWAサンプルアプリ",
+  "background_color": "#efe1c8",
+  "theme_color": "#a94d3f",
+  "description": "会った回数ではなく、相手から返ってきた反応で関係の現在地を記録するアプリ",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }

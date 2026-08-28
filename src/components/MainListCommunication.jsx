@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react'
 import * as avatarStore from '../utils/avatarStore'
 import * as friendLogic from '../utils/friendLogic'
+import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 
 const REL_PRESETS=['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
@@ -73,7 +74,7 @@ export default function MainListCommunication({people,onToggleDrawer,onDeleteMul
       const gate=friendLogic.getStageGateProgress(profile,stage)
       const lastDate=friendLogic.getLastConversationDate(person)
       return <li className="person-row communication-person-row" key={person.id} onClick={()=>{if(!deleteMode)window.location.hash=`#person:${person.id}`}}>
-        {deleteMode&&<input type="checkbox" checked={selected.has(person.id)} onChange={()=>toggleSelected(person.id)} onClick={event=>event.stopPropagation()}/>}<img className="avatar" src={avatarMap[person.id]||'/icon-192.png'} alt=""/>
+        {deleteMode&&<input type="checkbox" checked={selected.has(person.id)} onChange={()=>toggleSelected(person.id)} onClick={event=>event.stopPropagation()}/>}<img className="avatar" src={avatarMap[person.id]||FALLBACK_AVATAR} alt=""/>
         <div className="meta"><div className="person-title-line"><strong className="name">{person.name}</strong><span className={stage?'intimacy-badge':'intimacy-badge provisional'}>{stage?`Stage ${stage} · ${definition.title}`:'段階未設定'}</span></div>
           <div className="hearts compact-hearts" aria-label={stage?`第${stage}段階`:'段階未設定'}>{Array.from({length:10}).map((_,index)=><span key={index} className={stage&&index<stage?'heart filled':'heart'}>{stage&&index<stage?'❤️':'🖤'}</span>)}</div>
           <div className="communication-preview"><span>会話 {lastDate||'未記録'}</span>{stage&&<span>相互サイン {gate.checked}/{gate.total}</span>}{profile.iCallThem&&<span>「{profile.iCallThem}」と呼ぶ</span>}</div>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PersonPage from './PersonPage'
 import * as avatarStore from '../utils/avatarStore'
 import * as friendLogic from '../utils/friendLogic'
+import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 
 const PERSON_TABS = [
   { key: 'relation', label: '関係' },
@@ -172,7 +173,7 @@ export default function CommunicationPersonPage({ person, onSave, onBack }){
   return (
     <div className="person-page communication-page stage-page">
       <header className="communication-header">
-        <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} alt="" />
+        <img className="avatar-large" src={avatarUrl || local.avatar || FALLBACK_AVATAR} alt="" />
         <div className="stage-header-copy">
           <p className="eyebrow">RELATIONSHIP GRADIENT</p>
           <h2>{local.name || '無名'}</h2>

@@ -6,6 +6,22 @@
 
 .app-root{ min-height: 100dvh; }
 
+/* Transient status message (import/export feedback) */
+.app-toast{
+  position: fixed; left: 50%; top: var(--sp-3);
+  transform: translateX(-50%);
+  z-index: 200;
+  max-width: calc(100% - 2 * var(--sp-4));
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+
 /* ---------------- Main list container ---------------- */
 .main-list{ padding: 0 var(--sp-2) var(--sp-2); touch-action: manipulation; }
 .people-list{ list-style: none; padding: 0; margin: 0; }

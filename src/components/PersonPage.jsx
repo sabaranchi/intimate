@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import * as avatarStore from '../utils/avatarStore'
+import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 
 const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
@@ -437,7 +438,7 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
     <div className={embedded ? 'person-page embedded' : 'person-page'}>
       {!embedded && (
         <div className="person-header">
-          <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
+          <img className="avatar-large" src={avatarUrl || local.avatar || FALLBACK_AVATAR} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
           <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
           <div className="header-meta">
             <div className="name-row">
