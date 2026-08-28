@@ -667,6 +667,7 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
 
         {tab==='events' && (
           <div className="events">
+            <RecordTimeline events={local.events} conversationLog={local.communication?.conversationLog} />
             <div className="basic-row" style={{marginBottom:8}}>
               <div className="basic-main">
                 <div className="basic-label">写真アルバム</div>
@@ -859,4 +860,44 @@ function splitList(str){
 }
 function safeParse(s){
   try{ return JSON.parse(s) }catch(e){ return {} }
+}
+
+// Read-only chronological overview of everything recorded about this person —
+// conversations (edited on the 関係 tab) and free-form events, newest first.
+function RecordTimeline({ events, conversationLog }){
+  const items = [
+    ...((events) || []).filter(e => e && (e.text || '').trim()).map(e => ({
+      key: 'e-' + e.id, kind: 'event', date: e.date ? String(e.date).slice(0, 10) : '', text: e.text
+    })),
+    ...((conversationLog) || []).map(c => ({
+      key: 'c-' + c.id, kind: 'convo', date: c.date || '', c
+    }))
+  ].sort((a, b) => String(b.date).localeCompare(String(a.date)))
+
+  if(!items.length) return null
+
+  return (
+    <div className="record-timeline">
+      <div className="basic-label">これまでの記録</div>
+      <ol>
+        {items.map(item => (
+          <li key={item.key} className={'tl-item tl-' + item.kind}>
+            <span className="tl-badge">{item.kind === 'convo' ? '💬' : '📌'}</span>
+            <div className="tl-body">
+              <div className="tl-date">{item.date || '日付なし'}<em>{item.kind === 'convo' ? '会話' : '出来事'}</em></div>
+              {item.kind === 'event' && <p>{item.text}</p>}
+              {item.kind === 'convo' && (
+                <>
+                  {item.c.topics && <p>{item.c.topics}</p>}
+                  {item.c.theirResponse && <p className="tl-sub">相手から: {item.c.theirResponse}</p>}
+                  {item.c.appreciated && <p className="tl-sub tl-good">よかった: {item.c.appreciated}</p>}
+                  {item.c.wantToAsk && <p className="tl-sub tl-next">次に: {item.c.wantToAsk}</p>}
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
 }

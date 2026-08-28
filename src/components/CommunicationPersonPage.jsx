@@ -9,7 +9,7 @@ import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 const PERSON_TABS = [
   { key: 'relation', label: '関係' },
   { key: 'basic', label: '基本情報' },
-  { key: 'events', label: '出来事' },
+  { key: 'events', label: '記録' },
   { key: 'notes', label: 'メモ' }
 ]
 
