@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import * as friendLogic from '../utils/friendLogic'
 import * as avatarStore from '../utils/avatarStore'
 
 const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
-export default function PersonPage({person, onSave, onBack}){
-  const [tab, setTab] = useState('basic')
+export default function PersonPage({person, onSave, onBack, embedded=false, tab: tabProp, onChange}){
+  const [tabState, setTabState] = useState('basic')
+  const tab = embedded ? (tabProp || 'basic') : tabState
+  const setTab = embedded ? (()=>{}) : setTabState
   const [expandedPhoto, setExpandedPhoto] = useState(null)
   const [photoUrls, setPhotoUrls] = useState({}) // photo id -> object URL
   const [showAvatarCrop, setShowAvatarCrop] = useState(false)
@@ -61,7 +62,21 @@ export default function PersonPage({person, onSave, onBack}){
   }
 
   const [local, setLocal] = useState(()=> normalizePerson(person))
-  useEffect(()=> setLocal(normalizePerson(person)), [person])
+  useEffect(()=> setLocal(normalizePerson(person)), [person?.id])
+
+  // In the unified person page, lift edits up (debounced) instead of only on "back".
+  const latestLocalRef = useRef(local)
+  useEffect(()=>{ latestLocalRef.current = local }, [local])
+  useEffect(()=>{
+    if(!embedded || !onChange) return
+    const t = setTimeout(()=> onChange(normalizePerson(local)), 400)
+    return ()=> clearTimeout(t)
+  }, [local, embedded])
+  // Flush the latest edit when switching away from this tab (component unmounts).
+  useEffect(()=>{
+    if(!embedded || !onChange) return
+    return ()=> onChange(normalizePerson(latestLocalRef.current))
+  }, [embedded])
   const [lastAdded, setLastAdded] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const dragSrc = useRef(null)
@@ -116,8 +131,8 @@ export default function PersonPage({person, onSave, onBack}){
 
   function save(){
     // normalize before saving
-    onSave(normalizePerson(local))
-    onBack()
+    onSave && onSave(normalizePerson(local))
+    onBack && onBack()
   }
 
   async function handleAvatar(file){
@@ -278,7 +293,7 @@ export default function PersonPage({person, onSave, onBack}){
   const touchStartY = useRef(null)
   useEffect(()=>{
     const el = containerRef.current
-    if(!el) return
+    if(!el || embedded) return
     function onTouchStart(e){
       const t = e.touches[0]
       touchStartX.current = t.clientX
@@ -419,47 +434,62 @@ export default function PersonPage({person, onSave, onBack}){
   }
 
   return (
-    <div className="person-page">
-      <div className="person-header">
-        <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
-        <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
-        <div className="header-meta">
-          <div className="name-row">
-            <h2>{local.name}{calcAge(local.birthday) !== null && ` (${calcAge(local.birthday)})`}</h2>
-            <select className="relation-select" value={local.relationshipStatus || 'unknown'} onChange={e=> setLocal({...local, relationshipStatus: e.target.value})}>
-              <option value="unknown">不明</option>
-              <option value="partner_yes">{getPartnerLabel(local.gender)}あり</option>
-              <option value="partner_no">{getPartnerLabel(local.gender)}なし</option>
-              <option value="married">既婚</option>
-              <option value="single">独身</option>
-            </select>
+    <div className={embedded ? 'person-page embedded' : 'person-page'}>
+      {!embedded && (
+        <div className="person-header">
+          <img className="avatar-large" src={avatarUrl || local.avatar || '/icon-192.png'} onClick={()=> avatarInputRef.current && avatarInputRef.current.click()} style={{cursor:'pointer'}} />
+          <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
+          <div className="header-meta">
+            <div className="name-row">
+              <h2>{local.name}{calcAge(local.birthday) !== null && ` (${calcAge(local.birthday)})`}</h2>
+              <select className="relation-select" value={local.relationshipStatus || 'unknown'} onChange={e=> setLocal({...local, relationshipStatus: e.target.value})}>
+                <option value="unknown">不明</option>
+                <option value="partner_yes">{getPartnerLabel(local.gender)}あり</option>
+                <option value="partner_no">{getPartnerLabel(local.gender)}なし</option>
+                <option value="married">既婚</option>
+                <option value="single">独身</option>
+              </select>
+            </div>
+            <div className="hearts header-hearts">
+              {Array.from({length:10}).map((_,i)=>{
+                const pct = Math.round((local.friendScore||0)/10)
+                const filled = i < pct
+                return <span key={i} className={"heart " + (filled? 'filled':'')}>{filled ? '❤️' : '🖤'}</span>
+              })}
+            </div>
           </div>
-          <div className="hearts header-hearts">
-            {Array.from({length:10}).map((_,i)=>{
-              const pct = Math.round((local.friendScore||0)/10)
-              const filled = i < pct
-              const filledChar = '❤️'
-              const emptyChar = '🖤'
-              return <span key={i} className={"heart " + (filled? 'filled':'')}>{filled ? filledChar : emptyChar}</span>
-            })}
+        </div>
+      )}
+
+      {embedded && (
+        <div className="section-toolbar">
+          {tab==='basic' && (
+            <>
+              <button type="button" onClick={()=> avatarInputRef.current && avatarInputRef.current.click()}>写真を変更</button>
+              <input ref={avatarInputRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{ if(e.target.files && e.target.files[0]) handleAvatar(e.target.files[0]) }} />
+            </>
+          )}
+          <button type="button" onClick={()=> setEditMode(e=>!e)}>{editMode ? '完了' : '並べ替え'}</button>
+          <button type="button" onClick={()=> addNew()}>{tab==='basic' ? '項目を追加' : tab==='events' ? '出来事を追加' : 'メモを追加'}</button>
+        </div>
+      )}
+
+      {!embedded && (
+        <div className="tabs">
+          <div className="tabs-top">
+            <button className={tab==='basic' ? 'active' : ''} onClick={()=>setTab('basic')}>基本情報</button>
+            <button className={tab==='events' ? 'active' : ''} onClick={()=>setTab('events')}>出来事</button>
+            <button className={tab==='notes' ? 'active' : ''} onClick={()=>setTab('notes')}>メモ</button>
+          </div>
+          <div className="tabs-bottom">
+            <button className="back-btn" onClick={()=> save()}>← 戻る</button>
+            <button className="edit-btn" onClick={()=> setEditMode(e=>!e)}>{editMode? '完了' : '編集'}</button>
+            <button className="add-btn" onClick={()=> addNew()}>追加</button>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="tabs">
-        <div className="tabs-top">
-          <button className={tab==='basic' ? 'active' : ''} onClick={()=>setTab('basic')}>基本情報</button>
-          <button className={tab==='events' ? 'active' : ''} onClick={()=>setTab('events')}>出来事</button>
-          <button className={tab==='notes' ? 'active' : ''} onClick={()=>setTab('notes')}>メモ</button>
-        </div>
-        <div className="tabs-bottom">
-          <button className="back-btn" onClick={()=> save()}>← 戻る</button>
-          <button className="edit-btn" onClick={()=> setEditMode(e=>!e)}>{editMode? '完了' : '編集'}</button>
-          <button className="add-btn" onClick={()=> addNew()}>追加</button>
-        </div>
-      </div>
-
-      <div className="tab-body" ref={containerRef}>
+      <div className={embedded ? 'tab-body embedded' : 'tab-body'} ref={containerRef}>
         {tab==='basic' && (
           <div className="basic">
             <div className="basic-list">

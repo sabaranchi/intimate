@@ -34,7 +34,7 @@ export default function CalendarPage({ people, onBack }){
       if(!p || !p.lastInteractionDate) return
       const lastDate = new Date(p.lastInteractionDate)
       if(isNaN(lastDate)) return
-      // 3週間後（21日後）
+      // 最後に話してから3週間ほど経つ頃 — 「そろそろ気にかけたい人」として穏やかに表示
       const followUp = new Date(lastDate)
       followUp.setDate(followUp.getDate() + 21)
       const m = followUp.getMonth()
@@ -69,40 +69,39 @@ export default function CalendarPage({ people, onBack }){
   function nextMonth(){ const d = new Date(refDate); d.setMonth(d.getMonth()+1); setRefDate(d) }
 
   return (
-    <div className="calendar-page" style={{padding:12}}>
-      <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+    <div className="calendar-page">
+      <div className="calendar-nav">
         <button onClick={onBack}>← 戻る</button>
         <button onClick={prevMonth}>〈 前月</button>
-        <div style={{fontWeight:700}}>{year}年 {month+1}月</div>
+        <div className="calendar-title">{year}年 {month+1}月</div>
         <button onClick={nextMonth}>次月 〉</button>
       </div>
-      <div className="calendar-grid" style={{display:'grid',gridTemplateColumns:'repeat(7, 1fr)',gap:6}}>
+      <div className="calendar-legend">
+        <span><i className="dot birthday" />🎂 誕生日</span>
+        <span><i className="dot followup" />🌱 そろそろ気にかけたい人</span>
+      </div>
+      <div className="calendar-grid">
         {['日','月','火','水','木','金','土'].map(w=> (
-          <div key={w} style={{textAlign:'center',fontWeight:700,opacity:0.8}}>{w}</div>
+          <div key={w} className="calendar-weekday">{w}</div>
         ))}
         {grid.map((cell, i)=>{
           if(cell.type==='blank') return <div key={i} />
           const hasBirthday = (cell.birthdays||[]).length>0
           const hasFollowUp = (cell.followUps||[]).length>0
-          let bgColor = '#f5e6d2'
-          if(hasBirthday) bgColor = 'rgba(255,170,100,0.4)'
-          if(hasFollowUp && !hasBirthday) bgColor = 'rgba(150,200,255,0.4)'
-          if(hasBirthday && hasFollowUp) bgColor = 'rgba(255,180,180,0.5)'
+          const cls = 'calendar-cell'
+            + (hasBirthday ? ' has-birthday' : '')
+            + (hasFollowUp ? ' has-followup' : '')
           return (
-            <div key={i} className="calendar-cell" style={{border:'1px solid #7a5230',borderRadius:6,padding:8,background: bgColor}}>
-              <div style={{fontWeight:700}}>{cell.day}</div>
+            <div key={i} className={cls}>
+              <div className="calendar-day">{cell.day}</div>
               {hasBirthday && (
-                <ul style={{listStyle:'none',padding:0,margin:0,fontSize:12}}>
-                  {cell.birthdays.map(p=> (
-                    <li key={p.id}>🎂 {p.name}</li>
-                  ))}
+                <ul className="calendar-marks">
+                  {cell.birthdays.map(p=> <li key={p.id}>🎂 {p.name}</li>)}
                 </ul>
               )}
               {hasFollowUp && (
-                <ul style={{listStyle:'none',padding:0,margin:0,fontSize:12}}>
-                  {cell.followUps.map(p=> (
-                    <li key={p.id}>📞 {p.name}</li>
-                  ))}
+                <ul className="calendar-marks">
+                  {cell.followUps.map(p=> <li key={p.id}>🌱 {p.name}</li>)}
                 </ul>
               )}
             </div>
