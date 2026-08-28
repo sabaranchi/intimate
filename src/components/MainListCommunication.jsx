@@ -53,6 +53,25 @@ export default function MainListCommunication({people,onToggleDrawer,onDeleteMul
 
   const hasPeople=(people||[]).length>0
 
+  // "気にかけたい人" — gentle, care-framed nudges (never guilt).
+  const careItems=(!term && !relationFilter.length && !deleteMode)
+    ? (people||[]).map(person=>{
+        const profile=friendLogic.normalizeCommunication(person)
+        const wantToAsk=friendLogic.getConversationLog(profile).find(entry=>entry.wantToAsk)?.wantToAsk||''
+        const last=friendLogic.getLastConversationDate(person)
+        const gap=last ? Math.floor((Date.now()-new Date(last).getTime())/86400000) : Infinity
+        let reason=null
+        if(wantToAsk) reason={tone:'ask',text:`次に聞きたい: ${wantToAsk}`}
+        else if(Number.isFinite(gap) && gap>=21) reason={tone:'gap',text:`${gap}日ぶり。そろそろ声をかけてみては`}
+        else if(!Number.isFinite(gap) && profile.relationshipStage) reason={tone:'new',text:'まだ会話を記録していません'}
+        return reason ? {person,reason,gap:Number.isFinite(gap)?gap:0} : null
+      }).filter(Boolean).sort((a,b)=>{
+        const rank=t=>t==='ask'?0:t==='gap'?1:2
+        const r=rank(a.reason.tone)-rank(b.reason.tone)
+        return r!==0 ? r : b.gap-a.gap
+      }).slice(0,5)
+    : []
+
   return <div className="main-list communication-list">
     <header className="list-hero"><div><p className="eyebrow">RELATIONSHIP GRADIENT</p><h1>関係性の現在地</h1><p>ハート1個＝1段階。相手から返ってきた反応を基準に進めます。</p></div><button className="menu-button" onClick={onToggleDrawer} aria-label="メニュー">☰</button></header>
 
@@ -67,6 +86,16 @@ export default function MainListCommunication({people,onToggleDrawer,onDeleteMul
     <div className="list-controls"><input placeholder="名前・呼び名・関係性を検索" value={query} onChange={event=>setQuery(event.target.value)}/><select value={sortBy} onChange={event=>setSortBy(event.target.value)}><option value="lastConversationDate_desc">最近話した順</option><option value="lastConversationDate_asc">会話日が古い順</option><option value="friendScore_desc">段階が高い順</option><option value="friendScore_asc">段階が低い順</option><option value="name">名前順</option></select><button type="button" onClick={()=>setShowFilters(value=>!value)}>関係性で絞る</button></div>
     {showFilters&&<div className="chip-row relation-filters">{relationOptions.map(relation=><button type="button" key={relation} className={relationFilter.includes(relation)?'chip chip-on':'chip chip-off'} onClick={()=>setRelationFilter(previous=>previous.includes(relation)?previous.filter(item=>item!==relation):[...previous,relation])}>{relation}</button>)}</div>}
     {deleteMode&&<div className="delete-bar"><span>{selected.size}件選択</span><button onClick={deleteSelected}>削除</button><button onClick={()=>{setDeleteMode(false);setSelected(new Set())}}>キャンセル</button></div>}
+
+    {careItems.length>0&&<section className="care-list" aria-label="気にかけたい人">
+      <p className="eyebrow">気にかけたい人</p>
+      <ul>{careItems.map(({person,reason})=>(
+        <li key={person.id} className="care-row" onClick={()=>{window.location.hash=`#person:${person.id}`}}>
+          <img className="avatar" src={avatarMap[person.id]||FALLBACK_AVATAR} alt=""/>
+          <div><strong>{person.name}</strong><span className={`care-reason care-${reason.tone}`}>{reason.text}</span></div>
+        </li>
+      ))}</ul>
+    </section>}
     <ul className="people-list">{sorted.map(person=>{
       const profile=friendLogic.normalizeCommunication(person)
       const stage=profile.relationshipStage
