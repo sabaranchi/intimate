@@ -1,0 +1,202 @@
+/* =============================================================
+   flow.css — conversation-flow, momentum and knowledge cards
+   (relationship tab of the unified person page). Tokens only.
+   ============================================================= */
+
+/* Linked conversation-level label under each stage step */
+.stage-step .flow-tag{
+  margin-top: 2px;
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+}
+.stage-step.selected .flow-tag{ color: var(--ink-on-accent); opacity: .85; }
+
+/* ---------------- Section heading with a progress pill ---------------- */
+.section-heading.with-progress{
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3);
+}
+.section-heading.with-progress > span{
+  flex: 0 0 auto;
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  color: var(--ink-muted);
+}
+
+/* ---------------- Conversation flow card ---------------- */
+.flow-heading{ display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+.flow-heading .eyebrow{ margin: 0; }
+.level-badge{
+  flex: 0 0 auto;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--ink-on-accent);
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+}
+.flow-formula{
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--accent-tint);
+}
+.flow-formula small{ font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .06em; color: var(--accent); }
+.flow-formula strong{ display: block; margin: var(--sp-1) 0; font-size: var(--fs-base); }
+.flow-formula p{ font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.5; }
+
+.flow-block{ margin-top: var(--sp-4); }
+.flow-block h4{ margin: 0 0 var(--sp-2); font-size: var(--fs-sm); }
+.flow-moves{ margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: var(--sp-1); }
+.flow-moves li{ font-size: var(--fs-sm); line-height: 1.5; }
+
+.flow-examples{ display: flex; flex-direction: column; gap: var(--sp-2); }
+.flow-examples button{
+  width: 100%;
+  min-height: 40px;
+  padding: var(--sp-2) var(--sp-3);
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.flow-engine{ display: grid; gap: var(--sp-2); margin-top: var(--sp-4); }
+.flow-engine article{
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.flow-engine article.invite{ border-color: var(--positive-line); background: var(--positive-soft); }
+.flow-engine small{ font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .06em; color: var(--ink-faint); }
+.flow-engine p{ margin-top: var(--sp-1); font-size: var(--fs-sm); line-height: 1.5; }
+
+.advance-signals{ margin-top: var(--sp-4); }
+.advance-signals strong{ font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .06em; color: var(--accent); }
+.advance-signals > div{ display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-2); }
+.advance-signals span{
+  padding: 3px var(--sp-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-2xs);
+}
+.ethical-note{
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.flow-note-label{
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+/* ---------------- Momentum ("next 5% step") card ---------------- */
+.micro-steps{ display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
+.micro-step{
+  display: flex; align-items: flex-start; gap: var(--sp-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+.micro-step > span{
+  flex: 0 0 22px;
+  display: grid; place-items: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+}
+.micro-step.selected{ background: var(--accent); border-color: var(--accent); color: var(--ink-on-accent); }
+.micro-step.selected > span{ background: var(--ink-on-accent); border-color: transparent; color: var(--accent); }
+
+.plan-actions{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3); }
+.plan-status{ font-size: var(--fs-sm); font-weight: 700; color: var(--positive); }
+.outcome-buttons{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.outcome-buttons span{ font-size: var(--fs-sm); font-weight: 700; }
+.outcome-buttons button{ min-height: 40px; }
+.outcome-message{
+  width: 100%;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.outcome-message.positive{ border-color: var(--positive-line); background: var(--positive-soft); }
+.outcome-message.pause{ border-color: var(--warning); }
+.outcome-message strong{ font-size: var(--fs-sm); }
+.outcome-message p{ margin-top: 2px; font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.5; }
+
+/* ---------------- Knowledge card ---------------- */
+.knowledge-list{ display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-2); }
+.knowledge-item{
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.knowledge-item.filled{ border-color: var(--positive-line); }
+.knowledge-heading{ display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.knowledge-heading strong{ font-size: var(--fs-sm); }
+.source-chip{
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.knowledge-item > p{ margin-top: var(--sp-1); font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.5; }
+.knowledge-item blockquote{
+  margin: var(--sp-2) 0;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--accent-soft);
+  font-size: var(--fs-sm);
+}
+.knowledge-item textarea{
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: var(--fs-input);
+}
+
+/* ---------------- Collapsible talk deck ---------------- */
+.flow-details summary{
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
+}
+.flow-details summary::-webkit-details-marker{ display: none; }
+.flow-details summary::after{ content: '＋'; color: var(--accent); font-weight: 800; }
+.flow-details[open] summary::after{ content: '−'; }
+.flow-details summary small{ display: block; font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .06em; color: var(--accent); }
+.flow-details summary strong{ font-size: var(--fs-md); }
+.flow-details .talk-deck-grid{ margin-top: var(--sp-3); }
+
+@media (max-width: 620px){
+  .flow-engine{ grid-template-columns: 1fr; }
+}
