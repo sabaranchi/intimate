@@ -175,6 +175,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
   const planDraft = plan.draft !== undefined ? plan.draft : (microSteps[selectedStep] || '')
   const outcomeMessage = stageGuidance.getOutcomeMessage(plan.outcome, track, stage)
   const reactionGuide = stage ? stageGuidance.getReactionGuide(track, stage) : null
+  const physicalGuide = stage ? stageGuidance.getPhysicalGuide(track, stage) : null
   const collectionGuide = stage ? stageGuidance.getCollectionGuide(stage, track) : []
   const collectionFilled = collectionGuide.filter(item => stageGuidance.isCollectionFilled(local, item)).length
 
@@ -405,6 +406,27 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                   )}
                 </div>
               </section>
+
+              {physicalGuide && (
+                <section className="communication-card physical-card">
+                  <div className="section-heading"><p className="eyebrow">FIRST PHYSICAL STEP</p><h3>身体的な一歩</h3></div>
+                  <p className="gate-intro">{physicalGuide.intro}</p>
+                  <p className="self-hint">💡 {physicalGuide.best}</p>
+                  <div className="physical-moves">
+                    {physicalGuide.moves.map(m => (
+                      <article className="physical-move" key={m.move}>
+                        <strong>{m.move}</strong>
+                        <ol>
+                          {m.readings.map(([sign, next]) => (
+                            <li key={sign}><span className="rg-sign">{sign}</span><span className="rg-next">→ {next}</span></li>
+                          ))}
+                        </ol>
+                      </article>
+                    ))}
+                  </div>
+                  {stage === 10 && <p className="ethical-note">{physicalGuide.coupleNote}</p>}
+                </section>
+              )}
 
               <section className="communication-card gate-card">
                 <div className="section-heading with-progress">

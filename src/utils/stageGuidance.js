@@ -197,6 +197,45 @@ export function getReactionGuide(track, stage){
   return REACTION_GUIDE[`${track === 'romance' ? 'romance' : 'friend'}:${Number(stage)}`] || null
 }
 
+// Physical first steps — romance track, stage 9-10 only. All options must be
+// clearly perceivable and easy to decline. One at a time; if it is not received,
+// stop and hold the stage. No graded escalation ladder past a first mutual gesture.
+export const PHYSICAL_GUIDE = {
+  intro: '好意がある程度お互いに見えてから。相手にも「いま動いた」と分かる形で、一回だけ。受け取られなければそのまま引き、今の段階を維持する。',
+  best: '一番確実なのは言葉で聞くこと（「手つなぎたい」「ハグしていい？」）。断られてもお互い次に進みやすい。',
+  moves: [
+    {
+      move: '言葉で聞く：「手つなぎたい」「ハグしていい？」',
+      readings: [
+        ['「いいよ」／自分からしてくる', '受け入れられている。次に会う時も自然にできる'],
+        ['「今はいいかな」', 'そのまま引く。関係は変わらない。少し間を置く'],
+        ['はっきり嫌がる', '身体的な距離はまだ。会話と気持ちの段階に戻す']
+      ]
+    },
+    {
+      move: '歩く時、相手にも分かる形で手を差し出す（取るか取らないか相手が選べる）',
+      readings: [
+        ['手を取る／握り返す', '好意が返ってきている。他のサインも揃えば10段階へ'],
+        ['取らない・そのまま歩く', '一回でやめる。繰り返さない。同じ段階を維持'],
+        ['さっと離れる・歩く位置を変える', '身体的接触はまだ早い。次はしない']
+      ]
+    },
+    {
+      move: '別れ際に軽いハグを提案する（言葉で、または腕を軽く広げて相手が応じられる形で）',
+      readings: [
+        ['応じる／自分からもする', '受け入れられている'],
+        ['ぎこちなく応じる', '無理はさせない。次は言葉で確認してから'],
+        ['避ける・固まる', '提案しない。会話の心地よさを優先する']
+      ]
+    }
+  ],
+  coupleNote: '交際が成立したら、この先の距離感は「手順」ではなく二人で話して決める領域。「ペースを合わせられるか」「嫌なことを言い合えるか」を確認する。相手に隠れて段階を測るのは健全な関係とは逆の動き。'
+}
+
+export function getPhysicalGuide(track, stage){
+  return track === 'romance' && Number(stage) >= 9 ? PHYSICAL_GUIDE : null
+}
+
 const OUTCOME_DETAIL = {
   'romance:9': {
     returned: { title: 'サインが返ってきた', body: '好意の言葉や次の提案、差し出した手を取る等が相手からも出ている。複数そろえば10段階へ。' },
