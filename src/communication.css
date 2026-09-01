@@ -89,6 +89,15 @@
 
 .person-title-line{ display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
 .person-title-line .name{ font-size: var(--fs-md); font-weight: 700; }
+.track-tag{
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  border: 1px solid var(--line-strong);
+}
+.track-tag.romance{ background: var(--accent-tint); color: var(--accent); }
+.track-tag.friend{ background: var(--surface-sunken); color: var(--ink-muted); }
 
 .compact-hearts{
   display: flex; align-items: center; gap: 1px;

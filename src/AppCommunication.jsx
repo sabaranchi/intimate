@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import MainListCommunication from './components/MainListCommunication'
 import CalendarPage from './components/CalendarPage'
 import CommunicationPersonPage from './components/CommunicationPersonPage'
+import SelfSettings, { createEmptySelf } from './components/SelfSettings'
 import * as avatarStore from './utils/avatarStore'
 import * as db from './utils/db'
 import * as friendLogic from './utils/friendLogic'
 
 const STORAGE_KEY = 'intimate_people_v1'
+const SELF_KEY = 'intimate_self_v1'
 const PIN_KEY = 'intimate_app_pin'
 
 function loadPeopleLocal(){
@@ -34,6 +36,8 @@ async function savePeople(people){
 
 export default function AppCommunication(){
   const [people, setPeople] = useState([])
+  const [self, setSelf] = useState(()=> createEmptySelf())
+  const [selfLoaded, setSelfLoaded] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [route, setRoute] = useState(window.location.hash || '#')
   const [locked, setLocked] = useState(()=> Boolean(localStorage.getItem(PIN_KEY)))
@@ -72,6 +76,23 @@ export default function AppCommunication(){
   useEffect(()=>{
     if(loaded) savePeople(people)
   }, [people, loaded])
+
+  useEffect(()=>{
+    let active = true
+    ;(async()=>{
+      try{
+        const value = await db.getKv(SELF_KEY)
+        if(active && value && typeof value === 'object') setSelf({ ...createEmptySelf(), ...value })
+      }catch(e){}
+      if(active) setSelfLoaded(true)
+    })()
+    return ()=>{ active = false }
+  }, [])
+
+  useEffect(()=>{
+    if(!selfLoaded) return
+    try{ db.setKv(SELF_KEY, self) }catch(e){}
+  }, [self, selfLoaded])
 
   useEffect(()=>{
     if(!message) return
@@ -147,7 +168,7 @@ export default function AppCommunication(){
         if(blob) assets[id] = await avatarStore.blobToDataURL(blob)
       }
     }catch(e){}
-    const payload = { format: 'intimate-backup', version: 2, exportedAt: new Date().toISOString(), people, assets }
+    const payload = { format: 'intimate-backup', version: 2, exportedAt: new Date().toISOString(), self, people, assets }
     const blob = new Blob([JSON.stringify(payload)], {type: 'application/json'})
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -179,6 +200,9 @@ export default function AppCommunication(){
             restored++
           }catch(e){}
         }
+        if(!Array.isArray(parsed) && parsed?.self && typeof parsed.self === 'object'){
+          setSelf({ ...createEmptySelf(), ...parsed.self })
+        }
         setPeople(incoming)
         setMessage(`${incoming.length}人・写真${restored}件を読み込みました`)
       }catch(e){ setMessage('読み込めないファイルです') }
@@ -198,6 +222,7 @@ export default function AppCommunication(){
 
   const currentId = route.startsWith('#person:') ? route.split(':')[1] : null
   const currentPerson = people.find(person=> person.id === currentId)
+  const isSelfRoute = route === '#self'
 
   return (
     <div className="app-root">
@@ -206,6 +231,7 @@ export default function AppCommunication(){
         <div className="drawer communication-drawer">
           <button onClick={()=>{ setShowCreateModal(true); setDrawerOpen(false) }}>新しい人物</button>
           <button onClick={()=>{ setDrawerOpen(false); window.dispatchEvent(new CustomEvent('intimate:enterDeleteMode')) }}>人物を削除</button>
+          <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#self' }}>自分の設定</button>
           <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#calendar' }}>カレンダー</button>
           <button onClick={exportJSON}>エクスポート</button>
           <label className="import-btn">インポート<input type="file" accept="application/json" onChange={e=> importJSON(e.target.files[0])} hidden /></label>
@@ -215,13 +241,14 @@ export default function AppCommunication(){
 
       <main>
         {route === '#calendar' && <CalendarPage people={people} onBack={()=>{ window.location.hash = '#' }} />}
-        {route !== '#calendar' && !currentId && (
-          <MainListCommunication people={people} onUpdate={updatePerson} onToggleDrawer={()=> setDrawerOpen(value=> !value)} onDeleteMultiple={deletePeople} onStartCreate={()=> setShowCreateModal(true)} />
+        {isSelfRoute && <SelfSettings self={self} onSave={setSelf} onBack={()=>{ window.location.hash = '#' }} />}
+        {route !== '#calendar' && !isSelfRoute && !currentId && (
+          <MainListCommunication people={people} self={self} onUpdate={updatePerson} onToggleDrawer={()=> setDrawerOpen(value=> !value)} onDeleteMultiple={deletePeople} onStartCreate={()=> setShowCreateModal(true)} />
         )}
-        {route !== '#calendar' && currentId && currentPerson && (
-          <CommunicationPersonPage person={currentPerson} onSave={patch=> updatePerson(currentId, patch)} onBack={()=>{ window.location.hash = '#' }} />
+        {route !== '#calendar' && !isSelfRoute && currentId && currentPerson && (
+          <CommunicationPersonPage person={currentPerson} self={self} onSave={patch=> updatePerson(currentId, patch)} onBack={()=>{ window.location.hash = '#' }} />
         )}
-        {route !== '#calendar' && currentId && !currentPerson && <p className="empty-state">人物が見つかりません</p>}
+        {route !== '#calendar' && !isSelfRoute && currentId && !currentPerson && <p className="empty-state">人物が見つかりません</p>}
       </main>
 
       {showCreateModal && (

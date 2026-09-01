@@ -151,6 +151,236 @@ export const RELATIONSHIP_STAGES = [
   }
 ]
 
+// Friendship track — same 10-step structure, goal is 親友 (a close friend you hang out with).
+export const FRIEND_STAGES = [
+  {
+    id: 1,
+    title: '初対面・認知',
+    summary: '感じよく、存在を覚えてもらう',
+    topics: [
+      ['その場の話', '「今日人多いね」「この授業だるくない？」'],
+      ['所属・環境', '「何年？」「この辺よく来る？」'],
+      ['軽い好み', '「コーヒー派？」「ゲームやる？」'],
+      ['今日の出来事', '「朝早かった？」「このあと暇？」'],
+      ['共通点探し', '「それ自分も好き」「同じ講義だ」']
+    ],
+    nextConditions: ['挨拶を自然に返してくる', '相手からも話しかけてくる', '話しても警戒される感じがない'],
+    nextMove: '前回の話を一つ覚えて、次に自分から声をかける',
+    caution: '重い話・詮索から入ると引かれる。まずは軽く'
+  },
+  {
+    id: 2,
+    title: '顔見知り',
+    summary: '会ったら自然に話す人になる',
+    topics: [
+      ['前回の続き', '「この前のあれ、どうなった？」'],
+      ['最近のブーム', '「最近ハマってるものある？」'],
+      ['食べ物', '「この辺でうまい店知ってる？」'],
+      ['音楽・映画・ゲーム', '「最近何見てる？」'],
+      ['休日トーク', '「休みは家派？ 外派？」']
+    ],
+    nextConditions: ['相手からも質問が返ってくる', '会話を切らずに広げてくれる', '数分は自然に話せる'],
+    nextMove: '相手の答えに自分の話も重ねて、往復のリズムを作る',
+    caution: '質問を連発してインタビューにしない'
+  },
+  {
+    id: 3,
+    title: '普通に話せる',
+    summary: '考え方・性格を知る',
+    topics: [
+      ['性格・タイプ', '「計画立てる派？ 直前に決める派？」'],
+      ['好き嫌い', '「逆に絶対無理なものある？」'],
+      ['昔の話', '「高校のとき何してた？」'],
+      ['失敗談', '「今日ちょっとやらかした」'],
+      ['軽い価値観', '「旅行はぎっちり派？ ゆるゆる派？」']
+    ],
+    nextConditions: ['前に話したことを次につなげられる', '個人的な話にも普通に答えてくれる', '相手もこちらを知ろうとしてくる'],
+    nextMove: '前に聞いたことを覚えて、次の会話の入口にする',
+    caution: '一気に深掘りしない。重そうなら軽い話へ戻す'
+  },
+  {
+    id: 4,
+    title: '個人的に話す',
+    summary: 'その場にいるからではなく、あなた個人として話す',
+    topics: [
+      ['相手固有の話', '「こういうの好きそう」'],
+      ['前の話の続き', '「前に言ってた件どうなった？」'],
+      ['個別に送れる話', '「これ見て思い出した」'],
+      ['小さな相談', '「AとBどっちがいいと思う？」'],
+      ['日常共有', '「今日こんなの見つけた」']
+    ],
+    nextConditions: ['用がなくてもやり取りが続く', '相手からも話題を振ってくる', '返信のテンポ・量が無理なく合っている'],
+    nextMove: '対面で出た話題を、LINEやDMへ自然に延長する',
+    caution: '即レスや毎日の連絡を目的化しない'
+  },
+  {
+    id: 5,
+    title: '一緒に何かする',
+    summary: 'グループの中で一緒に動く',
+    topics: [
+      ['共通の予定', '「今度のあれ行く？」'],
+      ['やってみたいこと', '「それ一回やってみたいんだよね」'],
+      ['おすすめの場所', '「いい店知ってる？」'],
+      ['連携', '「その課題一緒にやらない？」'],
+      ['「今度」の話', '「今度みんなで行こうよ」']
+    ],
+    nextConditions: ['「今度」に前向きな反応がある', 'グループの誘いに乗ってくる', '無理な時は代案を返してくれる'],
+    nextMove: 'みんなの予定に乗せる形で、一緒に行動する機会を作る',
+    caution: '二人きりを急がない。まずグループでの居心地を作る'
+  },
+  {
+    id: 6,
+    title: '二人でも遊ぶ',
+    summary: '二人で過ごすことに抵抗がないか確かめる',
+    topics: [
+      ['共通の趣味', '「その映画、自分も見たい」'],
+      ['行きたい場所', '「前に言ってた店、行ってみたい」'],
+      ['軽い提案', '「じゃあ今度一緒に行こう」'],
+      ['具体化', '「来週か再来週、どこか空いてる？」'],
+      ['予定調整', '「土日どっちがいい？」']
+    ],
+    nextConditions: ['二人で会う誘いに応じてくれる', '二人でも会話が自然に続く', '終わった後も次につながる反応がある'],
+    nextMove: '初回は短めに切り上げて「楽しかった、また行こう」と伝える',
+    caution: '断られたら理由を追及しない。すぐ再度誘わない'
+  },
+  {
+    id: 7,
+    title: '遊ぶのが定番',
+    summary: '二人で遊ぶのが普通になる',
+    topics: [
+      ['二人の思い出', '「この前のあれ面白かったね」'],
+      ['新しく知った一面', '「意外とそういうの好きなんだ」'],
+      ['次回の話', '「今度はあそこ行こう」'],
+      ['内輪ネタ', '（二人だけで通じる言い回し）'],
+      ['「また遊ぼう」', '「またやろうぜ」']
+    ],
+    nextConditions: ['相手も予定を合わせようとしてくる', '行き先や次回を相手から提案してくる', '「また」が相手からも出る'],
+    nextMove: '少し時間を長くし、互いに楽しめる場所を選ぶ',
+    caution: '回数より、相手の主体性が増えているかを見る'
+  },
+  {
+    id: 8,
+    title: '弱さも見せ合える',
+    summary: '失敗や苦手を、茶化されずに話せる',
+    topics: [
+      ['自分の失敗談', '「これマジで反省してる」'],
+      ['最近の疲れ・悩み', '「ちょっと最近しんどくてさ」'],
+      ['苦手なこと', '「自分これ本当にダメなんだよね」'],
+      ['助けてほしいこと', '「ちょっと相談していい？」'],
+      ['相手の頑張り', '「あれ普通にすごいと思ってる」']
+    ],
+    nextConditions: ['相手も自分から弱さや悩みを話す', '相談を茶化さず受け取ってくれる', '後日、話の続きを相手から出してくる'],
+    nextMove: '自分の弱さを先に出す。同じ深さを相手に要求しない',
+    caution: '開示を返させるために弱さを使わない。秘密を関係の道具にしない'
+  },
+  {
+    id: 9,
+    title: '何でも話せる',
+    summary: '沈黙も本音も自然。二人の文脈が育つ',
+    topics: [
+      ['価値観の一致と違い', '「そこは考え方違うけど、理由は分かる」'],
+      ['過去の話の回収', '「前に言ってたやつ、その後どう？」'],
+      ['二人の呼び方・内輪ネタ', '（定着したあだ名・ネタ）'],
+      ['深い相談', '「これ他の人には言ってないんだけど」'],
+      ['長期的な話', '「卒業してからもこんな感じで会いたい」']
+    ],
+    nextConditions: ['相手も過去の話や内輪ネタを回収する', '個人的な悩みや価値観を話してくれる', '連絡や誘いが相手からも来る'],
+    nextMove: '以前の話を覚えていることを示し、続きや変化に関心を向ける',
+    caution: '「二人だけ」を囲い込みに使わない。相手を他の友人関係から孤立させない'
+  },
+  {
+    id: 10,
+    title: '親友',
+    summary: '長く続く、対等で心地よい関係',
+    topics: [
+      ['近況の共有', '「用ないけど近況報告」'],
+      ['迷った時の相談', '「ちょっと聞いてほしいことある」'],
+      ['変わらない部分・変わった部分', '「昔からそこは変わらないよね」'],
+      ['これからの話', '「この先も適当に会おう」'],
+      ['感謝', '「いてくれて普通に助かってる」']
+    ],
+    nextConditions: ['困った時に自然に連絡し合える', '久しぶりでも気まずくならない', '相手の生活の変化を互いに尊重できている'],
+    nextMove: '頻度が落ちても続く形を、二人で見つける',
+    caution: '「親友だから」で相手の時間や境界を当然視しない'
+  }
+]
+
+// Neutral read of the other person, adapted from the profiling notes.
+export const PERSONALITY_TYPES = [
+  {
+    id: 'calm', label: '落ち着き・慎重',
+    impression: '静かめ・声控えめ・動作が丁寧',
+    tendency: '受け身・慎重。警戒心はやや強め、心を開くと安定',
+    openLine: '「落ち着いてるよね。こういう人、話しやすい」',
+    ok: ['共感→小さな肯定→少しだけ自己開示', '相手のペースに合わせる', '目を見てゆっくり話す'],
+    ng: ['いきなりタメ口', '強いイジり・下ネタ', '「なんでそんな静かなの？」系の詰め']
+  },
+  {
+    id: 'bright', label: '明るい・社交',
+    impression: '笑顔多い・リアクション大・友達多そう',
+    tendency: 'ノリがいい・感情表現豊か。褒められ慣れている',
+    openLine: '「絶対クラスのムードメーカーだったでしょ」',
+    ok: ['軽いイジり＋ノリ合わせ', '一瞬だけ真面目トーンを挟む（ギャップ）', '人と違う切り口で褒める'],
+    ng: ['普通の褒め（可愛い／優しそう）', '盛り上げ役に徹する', 'ずっとハイテンション']
+  },
+  {
+    id: 'frank', label: 'さばさば・自立',
+    impression: '口調ハッキリ・ツッコミ気質・カジュアル',
+    tendency: '自立心が強い。相手を値踏みしがち',
+    openLine: '「はっきりしてそう。曖昧なの嫌いでしょ」',
+    ok: ['対等なツッコミ', '自分の意見をちゃんと出す', '短くテンポよく'],
+    ng: ['下手に出る', '過剰な気遣い', '何でも同意する']
+  },
+  {
+    id: 'cool', label: 'クール・論理',
+    impression: '無表情寄り・目力・モノトーン',
+    tendency: '論理的・プライド高め。興味ない相手には冷たい',
+    openLine: '「感情より考える派だよね」',
+    ok: ['思考・価値観の話', '質問は量より質', '静かな自信を見せる'],
+    ng: ['薄い雑談の連打', '馴れ馴れしさ', '無理に笑わせようとする']
+  },
+  {
+    id: 'clingy', label: '甘え・かまって',
+    impression: '距離が近い・SNS更新頻繁・構ってオーラ',
+    tendency: '承認欲求が強め。情緒が上下しやすい',
+    openLine: '「距離感近いよね。人懐っこいタイプ？」',
+    ok: ['たまに構う→たまに引く', 'ペースの主導権は自分が持つ', '余裕のある対応'],
+    ng: ['即レス・即同調', '全部受け止める', '相手の情緒に巻き込まれる']
+  },
+  {
+    id: 'shy', label: '控えめ・内向',
+    impression: '自分を下げる発言が多い・おしゃれ控えめ',
+    tendency: '否定されるのが怖い。心を開くと一途',
+    openLine: '「控えめだけど、ちゃんと考えて話すよね」',
+    ok: ['小さな肯定を積み重ねる', '努力や成果を拾って褒める', '急がない'],
+    ng: ['強いツッコミ', 'いじりすぎ', '他人と比較する']
+  },
+  {
+    id: 'volatile', label: '距離が必要（情緒不安定）',
+    impression: '初対面から重い話・病み／家庭の話が多い',
+    tendency: '依存しやすい・被害者意識。感情の振れ幅が大きい',
+    openLine: '（深入りしない。「そうなんだ、大変だったね」と事実だけ受ける）',
+    ok: ['話は聞くが踏み込まない', '境界線を明確にする', '冷静さを保つ'],
+    ng: ['救世主ムーブ', '過剰な共感', '連絡頻度を上げる']
+  }
+]
+
+export function getPersonalityType(id){ return PERSONALITY_TYPES.find(t => t.id === id) || null }
+
+// 'romance' when the two are different-gender, 'friend' when same or unknown.
+export function autoTrack(selfGender, personGender){
+  const a = (selfGender || '').trim()
+  const b = (personGender || '').trim()
+  if(a && b && a !== b) return 'romance'
+  return 'friend'
+}
+export function resolveTrack(person, selfGender){
+  const explicit = person?.communication?.track
+  if(explicit === 'friend' || explicit === 'romance') return explicit
+  return autoTrack(selfGender, person?.gender)
+}
+export function getStages(track){ return track === 'romance' ? RELATIONSHIP_STAGES : FRIEND_STAGES }
+
 export function clamp(n, a=0, b=100){ return Math.max(a, Math.min(b,n)) }
 
 export function createEmptyCommunicationProfile(){
@@ -186,6 +416,7 @@ export function normalizeCommunication(personOrProfile){
   profile.nextStepSafety={...createEmptyCommunicationProfile().nextStepSafety,...(source.nextStepSafety||{})}
   profile.conversationFlowNotes=source.conversationFlowNotes && typeof source.conversationFlowNotes==='object' ? source.conversationFlowNotes : {}
   profile.stepPlans=source.stepPlans && typeof source.stepPlans==='object' ? source.stepPlans : {}
+  profile.track=(source.track==='friend'||source.track==='romance') ? source.track : 'auto'
 
   profile.conversationLog=Array.isArray(source.conversationLog)
     ? source.conversationLog.filter(Boolean).map(normalizeConversationEntry)
@@ -223,12 +454,14 @@ export function getConversationLog(personOrProfile){
 }
 
 export function getRelationshipStage(personOrProfile){ return normalizeCommunication(personOrProfile).relationshipStage }
-export function getStageDefinition(stage){ return RELATIONSHIP_STAGES.find(item=>item.id===Number(stage)) || null }
+export function getStageDefinition(stage, track='friend'){
+  return getStages(track).find(item=>item.id===Number(stage)) || null
+}
 
-export function getStageGateProgress(personOrProfile, stageValue){
+export function getStageGateProgress(personOrProfile, stageValue, track='friend'){
   const profile=normalizeCommunication(personOrProfile)
   const stage=Number(stageValue || profile.relationshipStage)
-  const definition=getStageDefinition(stage)
+  const definition=getStageDefinition(stage, track)
   if(!definition) return {checked:0,total:0,ready:false}
   const values=Array.isArray(profile.stageChecks?.[stage]) ? profile.stageChecks[stage] : []
   const checked=definition.nextConditions.filter((_,index)=>Boolean(values[index])).length

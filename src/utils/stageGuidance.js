@@ -67,6 +67,56 @@ const MICRO_STEPS = {
   10:['告白前の三条件を一つずつ確認する','落ち着いて話せる二人の時間を作る','好きな理由と「付き合いたい」を短く言葉にする']
 }
 
+const FRIEND_MICRO_STEPS = {
+  1:['次に会ったら、名前を入れて短く挨拶する','共通の場について一言だけ話す','相手からの挨拶や反応を待つ余白を作る'],
+  2:['前回聞いたことを一つだけ続ける','答えやすい好みを聞き、自分の話も一つ返す','会話が自然に終われるところで切り上げる'],
+  3:['軽い価値観を一つ聞く','自分の失敗談を先に話す','相手の答えを覚えて次回につなげる'],
+  4:['前の会話に関係するものを一つだけ送る','相手固有の興味に触れる','返信を要求せず、対面の続きを作る'],
+  5:['グループの予定に「一緒にやろう」と乗せる','相手のハマりを聞いて共通点を探す','「今度みんなで」を具体的な候補まで進める'],
+  6:['会話の延長で短時間の二人遊びを提案する','候補日を二つ出し、断れる言い方にする','会った後に短く「楽しかった、また行こう」と伝える'],
+  7:['前回の二人の思い出に触れる','相手から出た次回案を具体化する','新しく知った一面を一つ肯定する'],
+  8:['自分の失敗や苦手を具体的に話す','相手の相談を茶化さず受け取る','助言より先に「大変だったな」と受け止める'],
+  9:['以前の話の続きを覚えて聞く','内輪ネタを相手も楽しむ時だけ再利用する','考え方の違いも面白がって掘る'],
+  10:['用がなくても近況を送る','会えない時期があっても関係は変わらないと伝える','いてくれることへの感謝を一度言葉にする']
+}
+
+const FRIEND_COLLECTION_GUIDE = {
+  1: STAGE_COLLECTION_GUIDE[1],
+  2: STAGE_COLLECTION_GUIDE[2],
+  3: STAGE_COLLECTION_GUIDE[3],
+  4: STAGE_COLLECTION_GUIDE[4],
+  5: [
+    {source:BASIC,key:'hobbies',label:'一緒にできそうな趣味',prompt:'グループ内で一緒に動くきっかけになる',ask:'「それ、みんなでやったら楽しそう」',placeholder:'一緒に楽しめそうなこと',type:'list'},
+    {source:NOTES,key:'wants',label:'行きたい場所・やりたいこと',prompt:'「今度みんなで」を具体化する材料',ask:'「最近行ってみたいところある？」',placeholder:'行きたい場所・やりたいこと'},
+    {source:NOTES,key:'topics',label:'グループで盛り上がった話題',prompt:'次に会った時の入口になる',ask:'その場で一番ウケた・伸びた話を残す',placeholder:'盛り上がった話題'}
+  ],
+  6: [
+    {source:NOTES,key:'wants',label:'二人で行きたい場所',prompt:'短く断りやすい二人遊びの提案に使う',ask:'「来週か再来週、どこか空いてる？」',placeholder:'次に行きたい場所'},
+    {source:BASIC,key:'dislikes',label:'避けたい場所・状況',prompt:'相手が断りやすく心地よい提案にする',ask:'人混み・時間帯・食べ物などの苦手を覚える',placeholder:'避けたいこと',type:'list'},
+    {source:NOTES,key:'worries',label:'予定上の負担・気がかり',prompt:'誘いを圧力にしないために把握',ask:'忙しさや負担を相手が話した時だけ残す',placeholder:'予定の制約・気がかり'}
+  ],
+  7: [
+    {source:NOTES,key:'commonTopics',label:'二人だけの思い出・共通体験',prompt:'一回を「続く関係」に変える',ask:'二人で笑ったこと・印象に残ったこと',placeholder:'二人の思い出'},
+    {source:NOTES,key:'personality',label:'新しく知った一面',prompt:'内面への肯定につなげる',ask:'「意外とこういうところがある」と感じた点',placeholder:'新しく知った一面'},
+    {source:NOTES,key:'wants',label:'次に一緒にしたいこと',prompt:'相手側の提案を優先して残す',ask:'相手が「次は」と話した内容',placeholder:'次回の候補'}
+  ],
+  8: [
+    {source:NOTES,key:'worries',label:'安心して話してくれた悩み',prompt:'自己開示を雑に扱わず覚えておく',ask:'相手が自分から話した悩みだけを残す',placeholder:'相談・悩み'},
+    {source:NOTES,key:'personality',label:'尊敬・いいと思う部分',prompt:'茶化さず伝えられる材料になる',ask:'考え方、頑張り、優しさなど',placeholder:'いいと思うところ'},
+    {source:BASIC,key:'dislikes',label:'苦手・コンプレックスへの配慮',prompt:'触れない方がよい話題を覚える',ask:'相手が嫌がった・避けた話題',placeholder:'触れない方がよいこと',type:'list'}
+  ],
+  9: [
+    {source:NOTES,key:'commonTopics',label:'二人の内輪ネタ・呼び方',prompt:'二人の文脈を言葉にできる',ask:'定着したあだ名・ネタ',placeholder:'内輪ネタ・呼び方'},
+    {source:NOTES,key:'personality',label:'一致する価値観と違い',prompt:'共通点だけでなく違いも面白がる',ask:'考え方が合った点・違った点',placeholder:'価値観の一致・違い'},
+    {source:NOTES,key:'topics',label:'過去に話した内容の続き',prompt:'覚えていることを示せる',ask:'前回途中だった話題',placeholder:'続きを聞きたい話'}
+  ],
+  10: [
+    {source:NOTES,key:'wants',label:'これからも続けたい関わり方',prompt:'頻度が落ちても続く形を探す',ask:'「この先どんな感じで会いたい？」',placeholder:'これからの関わり方'},
+    {source:NOTES,key:'worries',label:'相手の生活の変化・繁忙期',prompt:'距離が空く時期を責めないため',ask:'相手が話した予定・環境の変化',placeholder:'生活の変化'},
+    {source:NOTES,key:'commonTopics',label:'感謝を伝えたい具体的な場面',prompt:'「いてくれて助かった」を言葉にする',ask:'実際に助けられた・楽しかった場面',placeholder:'感謝したい場面'}
+  ]
+}
+
 function firstText(value){
   if(Array.isArray(value)) return value.find(Boolean) || ''
   if(typeof value !== 'string') return ''
@@ -80,13 +130,17 @@ export function getKnownAnchor(person){
   return '前に話したこと'
 }
 
-export function getMicroSteps(person,stage){
+export function getMicroSteps(person,stage,track='friend'){
   const anchor=getKnownAnchor(person)
-  const steps=MICRO_STEPS[stage]||MICRO_STEPS[1]
+  const table=track==='romance' ? MICRO_STEPS : FRIEND_MICRO_STEPS
+  const steps=table[stage]||table[1]
   return steps.map((step,index)=>index===0&&stage>=2&&stage<=5?`${step}（「${anchor}」を入口に）`:step)
 }
 
-export function getCollectionGuide(stage){ return STAGE_COLLECTION_GUIDE[stage]||[] }
+export function getCollectionGuide(stage,track='friend'){
+  const table=track==='romance' ? STAGE_COLLECTION_GUIDE : FRIEND_COLLECTION_GUIDE
+  return table[stage]||[]
+}
 
 export function getCollectionValue(person,item){
   return item.source===NOTES ? person?.notes?.[item.key] : person?.[item.key]

@@ -81,8 +81,30 @@ export const CONVERSATION_LEVELS = [
   }
 ]
 
-export function getConversationLevel(level){
-  return CONVERSATION_LEVELS.find(item=>item.id===Number(level)) || CONVERSATION_LEVELS[0]
+// Friendship track reuses levels 1-5, 7-9; only 6 and 10 are re-framed.
+export const FRIEND_LEVEL_OVERRIDES = {
+  6: {
+    id:6,title:'一緒に楽しむ入口',formula:'日常 → 共通の楽しみ → 誘い',purpose:'グループの雑談から、二人でもできる遊びの話へ移す。',
+    moves:['相手がハマっていることに乗る','自分も一緒にやってみたいと伝える','「今度」を具体的な候補まで進める'],
+    examples:['「それ気になってた。今度やり方教えてよ」','「その店、行ってみたい。来週とかどう？」','「みんなでって言ってたけど、二人で先に行っちゃう？」'],
+    collect:['相手の趣味・ハマり','行ってみたい場所','空いている曜日・時間帯'],
+    deepener:'「なんでそれが好きなの？」を一つだけ聞いて、こだわりを知る。',hypothesis:'「一人でじっくり派に見えるけど、意外と誰かと一緒の方が燃える？」',invitation:'「その話の続き、実際に行きながら聞きたい。来週どこか空いてる？」',
+    advanceSignals:['二人で会う誘いに乗ってくる','相手からも日程や場所を出してくる'],caution:'グループでの居心地を壊してまで二人を急がない。'
+  },
+  10: {
+    id:10,title:'変わらずいられる関係',formula:'日常 → 距離が空いても → 感謝と継続',purpose:'頻繁に会わなくても続く、対等で楽な関係を確認する。',
+    moves:['用がなくても近況を共有する','会えない時期があっても関係は変わらないと示す','助けられたこと・いてくれることへの感謝を言葉にする'],
+    examples:['「用ないけど生存報告」','「しばらく忙しくて会えなかったけど、全然変わらないな」','「なんだかんだ、いてくれて助かってる」'],
+    collect:['相手の生活リズム・繁忙期','会えない時の連絡の頻度感','これからやりたいこと'],
+    deepener:'先回りして気を回すより、今の相手に「最近どう？」と聞き続ける。',hypothesis:'「連絡はマメじゃないけど、切れると寂しいタイプでしょ」',invitation:'「落ち着いたらまた飯でも。急がないから」',
+    advanceSignals:['久しぶりでも気まずくならない','困った時にお互い自然に連絡する'],caution:'「親友だから」で相手の時間や事情を当然視しない。'
+  }
+}
+
+export function getConversationLevel(level, track='friend'){
+  const n = Number(level)
+  if(track !== 'romance' && FRIEND_LEVEL_OVERRIDES[n]) return FRIEND_LEVEL_OVERRIDES[n]
+  return CONVERSATION_LEVELS.find(item=>item.id===n) || CONVERSATION_LEVELS[0]
 }
 
 export function getSuggestedConversationLevel(relationshipStage){
