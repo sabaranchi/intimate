@@ -173,7 +173,8 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
   const plan = stage ? (profile.stepPlans?.[stage] || {}) : {}
   const selectedStep = Number.isInteger(plan.selectedStep) ? plan.selectedStep : 0
   const planDraft = plan.draft !== undefined ? plan.draft : (microSteps[selectedStep] || '')
-  const outcomeMessage = stageGuidance.getOutcomeMessage(plan.outcome)
+  const outcomeMessage = stageGuidance.getOutcomeMessage(plan.outcome, track, stage)
+  const reactionGuide = stage ? stageGuidance.getReactionGuide(track, stage) : null
   const collectionGuide = stage ? stageGuidance.getCollectionGuide(stage, track) : []
   const collectionFilled = collectionGuide.filter(item => stageGuidance.isCollectionFilled(local, item)).length
 
@@ -370,6 +371,16 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                 <label className="flow-note-label">自分の言葉に直す
                   <textarea rows="2" value={planDraft} onChange={event=> updateStepPlan(stage, { draft: event.target.value })} />
                 </label>
+                {reactionGuide && (
+                  <div className="reaction-guide">
+                    <strong>反応の読み方</strong>
+                    <ol>
+                      {reactionGuide.map(r => (
+                        <li key={r.sign}><span className="rg-sign">{r.sign}</span><span className="rg-next">→ {r.next}</span></li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
                 <div className="plan-actions">
                   {!plan.status && <button type="button" className="advance" onClick={()=> updateStepPlan(stage, { status: 'planned', outcome: '' })}>この一手を予定にする</button>}
                   {plan.status === 'planned' && (

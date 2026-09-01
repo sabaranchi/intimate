@@ -130,6 +130,19 @@
 .micro-step.selected{ background: var(--accent); border-color: var(--accent); color: var(--ink-on-accent); }
 .micro-step.selected > span{ background: var(--ink-on-accent); border-color: transparent; color: var(--accent); }
 
+.reaction-guide{
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.reaction-guide > strong{ font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .06em; color: var(--ink-faint); }
+.reaction-guide ol{ margin: var(--sp-2) 0 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: var(--sp-2); }
+.reaction-guide li{ font-size: var(--fs-xs); line-height: 1.5; }
+.reaction-guide .rg-sign{ display: block; font-weight: 700; }
+.reaction-guide .rg-next{ display: block; color: var(--ink-muted); }
+
 .plan-actions{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3); }
 .plan-status{ font-size: var(--fs-sm); font-weight: 700; color: var(--positive); }
 .outcome-buttons{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
