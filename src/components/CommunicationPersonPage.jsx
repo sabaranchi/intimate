@@ -194,9 +194,8 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
     }
   }
   const journeyTiles = [
-    { v: `${stage || 0}/10`, l: `LV（→ ${goalTitle}）` },
     log.length ? { v: log.length, l: '記録した会話' } : null,
-    daysSinceFirst ? { v: daysSinceFirst, l: '日目' } : null,
+    daysSinceFirst ? { v: daysSinceFirst, l: '日目（最初の記録から）' } : null,
     daysToBirthday != null ? { v: daysToBirthday, l: '日後が誕生日' } : null
   ].filter(Boolean)
 
@@ -205,13 +204,13 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
       <header className="communication-header">
         <img className="avatar-large" src={avatarUrl || local.avatar || FALLBACK_AVATAR} alt="" />
         <div className="stage-header-copy">
-          <p className="eyebrow">{track === 'romance' ? 'ROMANCE TRACK' : 'FRIEND TRACK'}</p>
+          <p className="eyebrow">{track === 'romance' ? 'ロマンス（異性）' : '友情（同性）'}</p>
           <h2>{local.name || '無名'}</h2>
           <div className="score-line">
             <span className="score-number">{stage || '—'}</span>
-            <span><strong>{definition?.title || 'レベル未設定'}</strong><small>{definition?.summary || 'いまの関係に近いレベルを選ぶ'}</small></span>
+            <span><strong>{definition?.title || '段階未設定'}</strong><small>{definition?.summary || 'いまの関係に近い段階を選んでください'}</small></span>
           </div>
-          <div className="hearts header-hearts" aria-label={stage ? `レベル${stage}` : 'レベル未設定'}>
+          <div className="hearts header-hearts" aria-label={stage ? `第${stage}段階` : '段階未設定'}>
             {Array.from({ length: 10 }).map((_, index)=> <span className={stage && index < stage ? 'heart filled' : 'heart'} key={index}>{stage && index < stage ? '❤️' : '🖤'}</span>)}
           </div>
           <div className="track-switch" role="group" aria-label="トラック">
@@ -236,16 +235,18 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
 
       {activeTab === 'relation' ? (
         <>
-          <section className="journey-strip" aria-label="ステータス">
-            {journeyTiles.map(tile => (
-              <div key={tile.l}><b>{tile.v}</b><span>{tile.l}</span></div>
-            ))}
-          </section>
+          {journeyTiles.length > 0 && (
+            <section className="journey-strip" aria-label="ふたりの歩み">
+              {journeyTiles.map(tile => (
+                <div key={tile.l}><b>{tile.v}</b><span>{tile.l}</span></div>
+              ))}
+            </section>
+          )}
 
           <section className="stage-picker-card">
-            <div className="section-heading"><p className="eyebrow">CURRENT LEVEL</p><h3>いまの関係はどのレベル？</h3></div>
-            <p className="stage-help">こなした回数ではなく、相手からも関係が返ってきているレベルを選ぶ。</p>
-            <div className="stage-scale" role="radiogroup" aria-label="現在のレベル">
+            <div className="section-heading"><p className="eyebrow">CURRENT STAGE</p><h3>いまの関係はどの段階？</h3></div>
+            <p className="stage-help">できた回数ではなく、相手からも関係が返ってきている段階を選びます。</p>
+            <div className="stage-scale" role="radiogroup" aria-label="現在の関係段階">
               {stages.map(item => {
                 const linked = conversationFlow.getConversationLevel(item.id, track)
                 return (
@@ -265,7 +266,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
           </section>
 
           <section className="communication-card type-card">
-              <div className="section-heading"><p className="eyebrow">READ THE PLAYER</p><h3>相手のタイプと接し方</h3></div>
+              <div className="section-heading"><p className="eyebrow">READING THE PERSON</p><h3>相手のタイプと接し方</h3></div>
               <div className="type-picker">
                 {friendLogic.PERSONALITY_TYPES.map(t => (
                   <button type="button" key={t.id} className={local.personalityType === t.id ? 'type-chip selected' : 'type-chip'} onClick={()=> setPersonalityType(t.id)}>
@@ -287,13 +288,13 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
 
           <section className="communication-card conversation-card">
             <div className="section-heading"><p className="eyebrow">CONVERSATION LOG</p><h3>会話の記録</h3></div>
-            <p className="gate-intro">話すたびに、内容と「相手から返ってきたもの」を短く残す。積み重ねが攻略メモになる。</p>
+            <p className="gate-intro">話すたびに、内容と「相手から返ってきたもの」を短く残す。積み重ねが進め方の地図になる。</p>
 
             <div className="convo-form">
               <label>話した日<input type="date" value={draft.date} onChange={event=> setDraft(d => ({ ...d, date: event.target.value }))} /></label>
               <label>話した内容・話題<textarea rows="2" value={draft.topics} onChange={event=> setDraft(d => ({ ...d, topics: event.target.value }))} placeholder="話題と、どこまで個人的な話になったか" /></label>
               <label>相手から返ってきた反応<textarea rows="2" value={draft.theirResponse} onChange={event=> setDraft(d => ({ ...d, theirResponse: event.target.value }))} placeholder="質問が返った、話を広げた、次の提案があった、など" /></label>
-              <label>印象に残ったこと・使えるネタ<textarea rows="2" value={draft.appreciated} onChange={event=> setDraft(d => ({ ...d, appreciated: event.target.value }))} placeholder="相手のこういうところ、次に使えそうな情報" /></label>
+              <label>印象に残ったこと・次に活かせること<textarea rows="2" value={draft.appreciated} onChange={event=> setDraft(d => ({ ...d, appreciated: event.target.value }))} placeholder="相手のこういうところ、次の会話で触れたいこと" /></label>
               <label>次に聞いてみたいこと<textarea rows="2" value={draft.wantToAsk} onChange={event=> setDraft(d => ({ ...d, wantToAsk: event.target.value }))} placeholder="今度会ったら聞きたい・続きを話したいこと" /></label>
               <button type="button" className="advance" disabled={!draft.topics.trim() && !draft.theirResponse.trim() && !draft.appreciated.trim() && !draft.wantToAsk.trim()} onClick={addConversation}>この会話を記録する</button>
             </div>
@@ -305,7 +306,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                     <div className="convo-when">{entry.date || '日付なし'}</div>
                     {entry.topics && <p><b>話題</b>{entry.topics}</p>}
                     {entry.theirResponse && <p><b>相手から</b>{entry.theirResponse}</p>}
-                    {entry.appreciated && <p className="convo-good"><b>ネタ</b>{entry.appreciated}</p>}
+                    {entry.appreciated && <p className="convo-good"><b>メモ</b>{entry.appreciated}</p>}
                     {entry.wantToAsk && <p className="convo-next"><b>次に</b>{entry.wantToAsk}</p>}
                     <button type="button" className="convo-del" onClick={()=> removeConversation(entry.id)}>削除</button>
                   </li>
@@ -318,8 +319,8 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
             <main className="stage-content">
               <section className="communication-card flow-card">
                 <div className="section-heading flow-heading">
-                  <div><p className="eyebrow">LEVEL {stage} ＝ CONVERSATION LEVEL {flow.id}</p><h3>いまのレベルに合う会話</h3></div>
-                  <span className="level-badge">LV {flow.id}</span>
+                  <div><p className="eyebrow">STAGE {stage} ＝ CONVERSATION LEVEL {flow.id}</p><h3>いまの段階に合う会話</h3></div>
+                  <span className="level-badge">Lv {flow.id}</span>
                 </div>
                 <div className="flow-formula"><small>{flow.title}</small><strong>{flow.formula}</strong><p>{flow.purpose}</p></div>
 
@@ -344,10 +345,10 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                 </div>
 
                 <div className="advance-signals">
-                  <strong>次のレベルへのサイン</strong>
+                  <strong>次の段階へのサイン</strong>
                   <div>{flow.advanceSignals.map(signal => <span key={signal}>✓ {signal}</span>)}</div>
                 </div>
-                <p className="ethical-note">つまずきポイント：{flow.caution}</p>
+                <p className="ethical-note">避けたい進め方：{flow.caution}</p>
 
                 <label className="flow-note-label">この人との会話メモ
                   <textarea rows="2" value={profile.conversationFlowNotes?.[flow.id] || ''} onChange={event=> updateFlowNote(flow.id, event.target.value)} placeholder="使えそうな話題、前に出た言葉、次に聞きたいこと" />
@@ -355,8 +356,8 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
               </section>
 
               <section className="communication-card momentum-card">
-                <div className="section-heading"><p className="eyebrow">QUEST</p><h3>次の一手</h3></div>
-                <p className="gate-intro">大きく進めず、今のレベルから一つだけ自然に濃くする。</p>
+                <div className="section-heading"><p className="eyebrow">NEXT STEP</p><h3>次の一手</h3></div>
+                <p className="gate-intro">大きく進めず、今の段階から一つだけ自然に濃くする。</p>
                 {hint && <p className="self-hint">💡 {hint}</p>}
                 <div className="micro-steps">
                   {microSteps.map((step, index) => (
@@ -396,7 +397,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
 
               <section className="communication-card gate-card">
                 <div className="section-heading with-progress">
-                  <div><p className="eyebrow">LEVEL-UP GATE</p><h3>{stage === 10 ? `${goalTitle}と言える条件` : '次のレベルへの条件'}</h3></div>
+                  <div><p className="eyebrow">RECIPROCITY GATE</p><h3>{stage === 10 ? `${goalTitle}と言える条件` : '次の段階へ進むサイン'}</h3></div>
                   <span>{gate.checked}/{gate.total}</span>
                 </div>
                 <p className="gate-intro">自分がやったことではなく、相手から返ってきた反応だけをチェックする。</p>
@@ -408,18 +409,18 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                   ))}
                 </div>
                 <div className={gate.ready ? 'gate-status ready' : 'gate-status'}>
-                  <strong>{gate.ready ? 'READY' : `${gate.checked}/${gate.total}`}</strong>
-                  <span>{gate.ready ? (stage === 10 ? `${goalTitle}レベルに到達できる状態` : '次のレベルを試せる') : `あと${Math.max(0, gate.required - gate.checked)}個サインが必要`}</span>
+                  <strong>{gate.checked}/{gate.total}</strong>
+                  <span>{gate.ready ? (stage === 10 ? `${goalTitle}と呼べる状態` : '次の段階を試せる') : `あと${Math.max(0, gate.required - gate.checked)}個サインが必要`}</span>
                 </div>
-                <div className="next-move"><strong>レベルを上げるなら</strong><p>{definition.nextMove}</p><small>つまずきポイント：{definition.caution}</small></div>
+                <div className="next-move"><strong>段階を進めるなら</strong><p>{definition.nextMove}</p><small>避けたい進め方：{definition.caution}</small></div>
                 <div className="stage-step-controls">
                   <button type="button" disabled={stage <= 1} onClick={()=> chooseStage(stage - 1)}>← 一段戻す</button>
-                  {stage < 10 && <button type="button" className="advance" disabled={!gate.ready} onClick={()=> chooseStage(stage + 1)}>レベルアップ →</button>}
+                  {stage < 10 && <button type="button" className="advance" disabled={!gate.ready} onClick={()=> chooseStage(stage + 1)}>条件を確認して一段進む →</button>}
                 </div>
               </section>
 
               <section className="communication-card safety-card">
-                <div className="section-heading"><p className="eyebrow">BEFORE THE NEXT MOVE</p><h3>次の一手の前チェック</h3></div>
+                <div className="section-heading"><p className="eyebrow">BEFORE THE NEXT MOVE</p><h3>次の一手の前に、相手の反応を確認</h3></div>
                 {SAFETY_ITEMS.map(([key, label])=> (
                   <label key={key} className={profile.nextStepSafety[key] ? 'checked' : ''}>
                     <input type="checkbox" checked={Boolean(profile.nextStepSafety[key])} onChange={()=> toggleSafety(key)} /><span>{label}</span>
@@ -430,7 +431,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
               {collectionGuide.length > 0 && (
                 <section className="communication-card knowledge-card">
                   <div className="section-heading with-progress">
-                    <div><p className="eyebrow">INTEL</p><h3>このレベルで押さえておくこと</h3></div>
+                    <div><p className="eyebrow">LEARN NATURALLY</p><h3>この段階で知っておくこと</h3></div>
                     <span>{collectionFilled}/{collectionGuide.length}</span>
                   </div>
                   <p className="gate-intro">質問攻めにせず、相手が自然に話した時に記録する。入力は基本情報・メモにも反映される。</p>
@@ -457,7 +458,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
               )}
 
               <details className="communication-card talk-deck-card flow-details">
-                <summary><span><small>TALK DECK</small><strong>このレベルで自然な5つの話題</strong></span></summary>
+                <summary><span><small>TALK DECK</small><strong>この段階で自然な5つの話題</strong></span></summary>
                 <div className="talk-deck-grid">
                   {definition.topics.map(([name, example], index)=> (
                     <article className="talk-card" key={name}><span>{index + 1}</span><div><strong>{name}</strong><p>{example}</p></div></article>
@@ -487,7 +488,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
             </main>
           ) : (
             <div className="stage-empty">
-              <strong>まず現在のレベルを選ぶ</strong>
+              <strong>まず現在地を選ぶ</strong>
               <p>迷ったら、自分ができることではなく「相手から返ってきている反応」で選ぶ。</p>
             </div>
           )}
