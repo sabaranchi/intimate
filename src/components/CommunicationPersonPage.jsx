@@ -424,6 +424,23 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                       </article>
                     ))}
                   </div>
+
+                  <details className="nonverbal-block">
+                    <summary>言葉にしない場合（手をつなぐ・ハグ・キス）</summary>
+                    <p className="gate-intro">{physicalGuide.nonVerbal.intro}</p>
+                    <div className="nv-cols">
+                      <div>
+                        <b>前向きのサイン（複数そろってから）</b>
+                        <ul>{physicalGuide.nonVerbal.green.map(x => <li key={x}>{x}</li>)}</ul>
+                      </div>
+                      <div>
+                        <b>動き方</b>
+                        <ol>{physicalGuide.nonVerbal.how.map(x => <li key={x}>{x}</li>)}</ol>
+                      </div>
+                    </div>
+                    <p className="ethical-note">{physicalGuide.nonVerbal.note}</p>
+                  </details>
+
                   {stage === 10 && <p className="ethical-note">{physicalGuide.coupleNote}</p>}
                 </section>
               )}
