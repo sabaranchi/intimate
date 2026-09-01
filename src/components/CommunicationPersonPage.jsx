@@ -439,6 +439,21 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                       </div>
                     </div>
                     <p className="ethical-note">{physicalGuide.nonVerbal.note}</p>
+
+                    <div className="nv-recovery">
+                      <b>受け取られなかった時のリカバリー</b>
+                      <p className="gate-intro">{physicalGuide.nonVerbal.recovery.intro}</p>
+                      <div className="nv-cols">
+                        <div>
+                          <b>やる</b>
+                          <ul>{physicalGuide.nonVerbal.recovery.do.map(x => <li key={x}>{x}</li>)}</ul>
+                        </div>
+                        <div>
+                          <b>やらない</b>
+                          <ul>{physicalGuide.nonVerbal.recovery.dont.map(x => <li key={x}>{x}</li>)}</ul>
+                        </div>
+                      </div>
+                    </div>
                   </details>
 
                   {stage === 10 && <p className="ethical-note">{physicalGuide.coupleNote}</p>}
