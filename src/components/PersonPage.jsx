@@ -65,19 +65,12 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
   const [local, setLocal] = useState(()=> normalizePerson(person))
   useEffect(()=> setLocal(normalizePerson(person)), [person?.id])
 
-  // In the unified person page, lift edits up (debounced) instead of only on "back".
-  const latestLocalRef = useRef(local)
-  useEffect(()=>{ latestLocalRef.current = local }, [local])
+  // Lift edits immediately; the parent handles persistence. A delayed child
+  // flush can otherwise arrive after the parent's navigation/unmount save.
   useEffect(()=>{
     if(!embedded || !onChange) return
-    const t = setTimeout(()=> onChange(normalizePerson(local)), 400)
-    return ()=> clearTimeout(t)
+    onChange(normalizePerson(local))
   }, [local, embedded])
-  // Flush the latest edit when switching away from this tab (component unmounts).
-  useEffect(()=>{
-    if(!embedded || !onChange) return
-    return ()=> onChange(normalizePerson(latestLocalRef.current))
-  }, [embedded])
   const [lastAdded, setLastAdded] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const dragSrc = useRef(null)

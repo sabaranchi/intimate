@@ -2,6 +2,7 @@ import React,{useEffect,useRef,useState} from 'react'
 import * as avatarStore from '../utils/avatarStore'
 import * as friendLogic from '../utils/friendLogic'
 import { FALLBACK_AVATAR } from '../utils/avatarFallback'
+import '../self.css'
 
 const REL_PRESETS=['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
@@ -75,6 +76,7 @@ export default function MainListCommunication({people,self,onToggleDrawer,onDele
   return <div className="main-list communication-list">
     <header className="list-hero"><div><p className="eyebrow">RELATIONSHIP GRADIENT</p><h1>関係性の現在地</h1><p>ハート1個＝1段階。相手から返ってきた反応を基準に進めます。</p></div><button className="menu-button" onClick={onToggleDrawer} aria-label="メニュー">☰</button></header>
 
+    <a className="self-entry" href="#self"><span><strong>自分ノート</strong><small>今日の意識・会う前の準備・漢昇の実践</small></span><i aria-hidden="true">↗</i></a>
     {!hasPeople&&<div className="first-run">
       <p className="eyebrow">RELATIONSHIP GRADIENT</p>
       <h2>最初の一人を登録しましょう</h2>
