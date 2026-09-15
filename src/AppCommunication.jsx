@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import MainListCommunication from './components/MainListCommunication'
 import CalendarPage from './components/CalendarPage'
 import CommunicationPersonPage from './components/CommunicationPersonPage'
-import SelfSettings, { createEmptySelf } from './components/SelfSettings'
-import GrowthPage from './components/GrowthPage'
+import { createEmptySelf } from './components/SelfSettings'
 import * as avatarStore from './utils/avatarStore'
 import * as db from './utils/db'
 import * as friendLogic from './utils/friendLogic'
@@ -11,6 +10,7 @@ import * as friendLogic from './utils/friendLogic'
 const STORAGE_KEY = 'intimate_people_v1'
 const SELF_KEY = 'intimate_self_v1'
 const PIN_KEY = 'intimate_app_pin'
+const SelfPage = lazy(()=>import('./components/SelfPage'))
 
 function loadPeopleLocal(){
   try{
@@ -39,6 +39,10 @@ export default function AppCommunication(){
   const [people, setPeople] = useState([])
   const [self, setSelf] = useState(()=> createEmptySelf())
   const [selfLoaded, setSelfLoaded] = useState(false)
+  const [selfLoadError, setSelfLoadError] = useState(false)
+  const [selfSaveStatus, setSelfSaveStatus] = useState('saving')
+  const [selfSaveRetry, setSelfSaveRetry] = useState(0)
+  const selfSaveQueue = useRef(Promise.resolve())
   const [loaded, setLoaded] = useState(false)
   const [route, setRoute] = useState(window.location.hash || '#')
   const [locked, setLocked] = useState(()=> Boolean(localStorage.getItem(PIN_KEY)))
@@ -85,7 +89,7 @@ export default function AppCommunication(){
       try{
         const value = await db.getKv(SELF_KEY)
         if(active && value && typeof value === 'object') setSelf({ ...createEmptySelf(), ...value })
-      }catch(e){}
+      }catch(e){ if(active) setSelfLoadError(true); return }
       if(active) setSelfLoaded(true)
     })()
     return ()=>{ active = false }
@@ -93,8 +97,12 @@ export default function AppCommunication(){
 
   useEffect(()=>{
     if(!selfLoaded) return
-    try{ db.setKv(SELF_KEY, self) }catch(e){}
-  }, [self, selfLoaded])
+    let active = true
+    setSelfSaveStatus('saving')
+    selfSaveQueue.current = selfSaveQueue.current.catch(()=>{}).then(()=>db.setKv(SELF_KEY, self))
+    selfSaveQueue.current.then(()=>{if(active)setSelfSaveStatus('saved')},()=>{if(active)setSelfSaveStatus('error')})
+    return ()=>{ active = false }
+  }, [self, selfLoaded, selfSaveRetry])
 
   useEffect(()=>{
     if(!message) return
@@ -226,8 +234,7 @@ export default function AppCommunication(){
   const currentId = route.startsWith('#person:') ? route.split(':')[1] : null
   const currentPerson = people.find(person=> person.id === currentId)
   const isSelfRoute = route === '#self'
-  const isGrowthRoute = route === '#growth'
-  const isSubRoute = route === '#calendar' || isSelfRoute || isGrowthRoute
+  const isSubRoute = route === '#calendar' || isSelfRoute
 
   return (
     <div className="app-root">
@@ -236,8 +243,7 @@ export default function AppCommunication(){
         <div className="drawer communication-drawer">
           <button onClick={()=>{ setShowCreateModal(true); setDrawerOpen(false) }}>新しい人物</button>
           <button onClick={()=>{ setDrawerOpen(false); window.dispatchEvent(new CustomEvent('intimate:enterDeleteMode')) }}>人物を削除</button>
-          <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#self' }}>自分の設定</button>
-          <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#growth' }}>自分の成長</button>
+          <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#self' }}>自分のページ</button>
           <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#calendar' }}>カレンダー</button>
           <button onClick={exportJSON}>エクスポート</button>
           <label className="import-btn">インポート<input type="file" accept="application/json" onChange={e=> importJSON(e.target.files[0])} hidden /></label>
@@ -247,8 +253,7 @@ export default function AppCommunication(){
 
       <main>
         {route === '#calendar' && <CalendarPage people={people} onBack={()=>{ window.location.hash = '#' }} />}
-        {isSelfRoute && <SelfSettings self={self} onSave={setSelf} onBack={()=>{ window.location.hash = '#' }} />}
-        {isGrowthRoute && <GrowthPage self={self} onSave={setSelf} onBack={()=>{ window.location.hash = '#' }} />}
+        {isSelfRoute && (selfLoaded ? <Suspense fallback={<p className="empty-state">自分ノートを開いています…</p>}><SelfPage self={self} people={people} onSave={setSelf} saveStatus={selfSaveStatus} onRetry={()=>setSelfSaveRetry(v=>v+1)} onBack={()=>{ window.location.hash = '#' }} /></Suspense> : <div className="empty-state">{selfLoadError?<><p>自分の記録を読み込めませんでした。既存の記録を保護するため、編集を停止しています。</p><button onClick={()=>window.location.reload()}>読み込みを再試行</button></>:<p>自分の記録を読み込んでいます…</p>}</div>)}
         {!isSubRoute && !currentId && (
           <MainListCommunication people={people} self={self} onUpdate={updatePerson} onToggleDrawer={()=> setDrawerOpen(value=> !value)} onDeleteMultiple={deletePeople} onStartCreate={()=> setShowCreateModal(true)} />
         )}

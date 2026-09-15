@@ -35,8 +35,9 @@ export async function setKv(key, value){
     const tx = db.transaction(STORE, 'readwrite')
     const store = tx.objectStore(STORE)
     const req = store.put(value, key)
-    req.onsuccess = ()=> resolve()
     req.onerror = ()=> reject(req.error)
-    tx.oncomplete = ()=> db.close()
+    tx.onabort = ()=>{ db.close(); reject(tx.error || new Error('保存が中断されました')) }
+    tx.onerror = ()=>{ db.close(); reject(tx.error) }
+    tx.oncomplete = ()=>{ db.close(); resolve() }
   })
 }

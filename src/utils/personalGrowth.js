@@ -1,16 +1,7 @@
-// General-purpose reference content — not tied to a specific person or track.
-// Used by GrowthPage (自分の成長) and by the work/networking track.
-
-export const CHECKLIST_ITEMS = [
-  { id: 'posture', label: '姿勢を意識する（猫背にならない）' },
-  { id: 'voice', label: '声のトーンを落ち着かせ、ゆっくり話す' },
-  { id: 'eye', label: '表情・アイコンタクトを意識する' },
-  { id: 'grooming', label: '身だしなみ・清潔感を整える' },
-  { id: 'pause', label: '話す前に一呼吸置く' },
-  { id: 'early', label: '約束の時間より少し早く着く' },
-  { id: 'listen', label: '相手の話を遮らず最後まで聞く' },
-  { id: 'greet', label: '自分から挨拶する' }
-]
+// General-purpose reference content shown on person pages (all tracks get
+// CHARISMA_GUIDE; the work/networking track also gets the other two).
+// See src/utils/selfPractice.js for the identity-level principles used in
+// the self notebook (#self) — these are shorter, tactical, per-conversation.
 
 export const CHARISMA_GUIDE = [
   '相手の名前を早く覚えて呼ぶ',

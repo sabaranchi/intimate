@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import * as friendLogic from '../utils/friendLogic'
 
 const GENDERS = [['男', '男'], ['女', '女'], ['その他', 'other'], ['未設定', '']]
@@ -15,33 +15,21 @@ export function createEmptySelf(){
   }
 }
 
-export default function SelfSettings({ self, onSave, onBack }){
-  const [local, setLocal] = useState(()=> ({ ...createEmptySelf(), ...(self || {}) }))
-  const latest = useRef(local)
-  const timer = useRef(null)
-
-  useEffect(()=>{ setLocal({ ...createEmptySelf(), ...(self || {}) }) }, [])
-  useEffect(()=>{ latest.current = local }, [local])
-  useEffect(()=>{
-    if(timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(()=> onSave({ ...local, updatedAt: new Date().toISOString() }), 450)
-    return ()=>{ if(timer.current) clearTimeout(timer.current) }
-  }, [local])
-  useEffect(()=> ()=>{ onSave({ ...latest.current, updatedAt: new Date().toISOString() }) }, [])
-
-  function set(key, value){ setLocal(prev => ({ ...prev, [key]: value })) }
+export default function SelfSettings({ self, onSave, onBack, embedded = false }){
+  const local = { ...createEmptySelf(), ...(self || {}) }
+  function set(key, value){ onSave(prev => ({ ...prev, [key]: value, updatedAt: new Date().toISOString() })) }
 
   const typeDef = friendLogic.getPersonalityType(local.personalityType)
 
   return (
     <div className="person-page communication-page self-page">
-      <header className="communication-header">
+      {!embedded && <header className="communication-header">
         <div className="stage-header-copy">
           <p className="eyebrow">YOUR PROFILE</p>
           <h2>自分の設定</h2>
           <div className="score-line"><span><small>ここの設定が、相手ごとのトラック判定と「自分の傾向」ヒントに使われます。</small></span></div>
         </div>
-      </header>
+      </header>}
 
       <section className="communication-card">
         <div className="section-heading"><p className="eyebrow">BASICS</p><h3>基本</h3></div>
@@ -92,10 +80,10 @@ export default function SelfSettings({ self, onSave, onBack }){
         <label>メモ<textarea rows="2" value={local.notes} onChange={e=> set('notes', e.target.value)} /></label>
       </section>
 
-      <nav className="communication-actions">
+      {!embedded && <nav className="communication-actions">
         <button type="button" onClick={onBack}>← 戻る</button>
         <span className="autosave-hint">変更は自動保存されます</span>
-      </nav>
+      </nav>}
     </div>
   )
 }
