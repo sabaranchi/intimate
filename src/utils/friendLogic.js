@@ -305,6 +305,160 @@ export const FRIEND_STAGES = [
   }
 ]
 
+// Work / networking track — goal is a trusted, mutual professional relationship.
+export const WORK_STAGES = [
+  {
+    id: 1,
+    title: '名刺交換・初対面',
+    summary: '存在を認知され、名前を覚えてもらう',
+    topics: [
+      ['自己紹介', '「どんなお仕事をされているんですか？」'],
+      ['その場の縁', '「今日はどういったご縁で？」'],
+      ['共通の知人・場', '「〇〇さんとはどちらで知り合われたんですか？」'],
+      ['業界の話題', '「最近この業界、〇〇が話題ですよね」'],
+      ['軽い自己開示', '「実は自分も最近始めたばかりで」']
+    ],
+    nextConditions: ['名刺交換や連絡先交換に応じてくれる', '会話に興味を持って質問を返してくれる', '次に会った時に覚えていてくれる'],
+    nextMove: '会話の中で覚えた一言を、お礼のメッセージに添えて送る',
+    caution: '初対面で売り込みや頼み事をしない。まずは覚えてもらうことを優先する'
+  },
+  {
+    id: 2,
+    title: '顔見知り',
+    summary: '会えば挨拶し合う関係になる',
+    topics: [
+      ['前回の続き', '「この前おっしゃってた件、その後どうですか？」'],
+      ['近況', '「最近お忙しいですか？」'],
+      ['業界ニュース', '「〇〇のニュース、見られました？」'],
+      ['イベント・勉強会', '「今度の〇〇、参加されますか？」'],
+      ['軽い雑談', '「このへんよく来られるんですか？」']
+    ],
+    nextConditions: ['向こうから挨拶や声かけがある', '名前を覚えていてくれる', '会話が短くても自然に続く'],
+    nextMove: '次に会える場（勉強会・イベント）の情報を一つ共有する',
+    caution: '毎回同じ話題を繰り返さない。前回の話を一つ覚えておく'
+  },
+  {
+    id: 3,
+    title: '世間話ができる',
+    summary: '業務的な話以外の雑談ができる',
+    topics: [
+      ['仕事のスタイル', '「普段どんな働き方をされてるんですか？」'],
+      ['休日の過ごし方', '「お休みの日は何されてます？」'],
+      ['趣味・興味', '「〇〇に興味あるって言われてましたよね」'],
+      ['出身・経歴', '「もともとどちらのご出身なんですか？」'],
+      ['軽い失敗談', '「実は最近こんな失敗しちゃって」']
+    ],
+    nextConditions: ['仕事以外の話にも答えてくれる', '雑談を自分から広げてくれる', '軽い相談や愚痴を挟んでくることがある'],
+    nextMove: '前に聞いた個人的な話を一つ覚えて、次の会話の入口にする',
+    caution: 'プライベートに踏み込みすぎない。相手が広げた分だけ広げる'
+  },
+  {
+    id: 4,
+    title: '個人として認識される',
+    summary: '「その他大勢」でなく、個人として覚えられる',
+    topics: [
+      ['相手固有の強み', '「〇〇さんの視点、いつも勉強になります」'],
+      ['個別の連絡', '「これ見て〇〇さんのこと思い出しました」'],
+      ['小さな相談', '「これってどう思われます？」'],
+      ['お互いの仕事の重なり', '「これ、〇〇さんの分野と近いですよね」'],
+      ['共有できる情報', '「これ役立つかもと思って」']
+    ],
+    nextConditions: ['用がなくても軽い連絡が続く', '相手からも情報や話題を振ってくる', '他の人に自分の名前を出してくれたことがある'],
+    nextMove: '対面で出た話題を、メッセージや紹介で自然に延長する',
+    caution: '見返りを期待して連絡しない。まず役に立つ側に回る'
+  },
+  {
+    id: 5,
+    title: '情報交換ができる',
+    summary: '有益な情報をお互いに渡し合う',
+    topics: [
+      ['業界動向の共有', '「これ〇〇さんの業界に関係しそうです」'],
+      ['お互いの近況', '「最近どんな案件をやられてるんですか？」'],
+      ['人の紹介', '「これ、〇〇さんに聞くといいかもです」'],
+      ['学びの共有', '「最近読んだ本でこれが良かったです」'],
+      ['軽い意見交換', '「これについてどう思われます？」']
+    ],
+    nextConditions: ['相手からも有益な情報が来る', '「今度ゆっくり話しましょう」等の提案がある', '個別に時間を取ることに前向き'],
+    nextMove: '会話の延長で、1対1で話せる短い時間（オンライン可）を提案する',
+    caution: '一方的に与える・もらうだけにしない。バランスを見る'
+  },
+  {
+    id: 6,
+    title: '1対1で会う（会食・面談）',
+    summary: 'グループでなく、個別に時間を取ってもらえる',
+    topics: [
+      ['お互いの目標', '「今どんなことを目指してるんですか？」'],
+      ['仕事の裏側', '「その仕事、実際どうやって始められたんですか？」'],
+      ['課題・悩み', '「今どんなことに苦労されてます？」'],
+      ['共通の関心事', '「〇〇についてもっと聞きたいです」'],
+      ['次につながる話', '「今度こういうこともやってみたくて」']
+    ],
+    nextConditions: ['1対1の誘いに応じてくれる', '会話が仕事以外にも及ぶ', '「また会いましょう」が相手からも出る'],
+    nextMove: '初回は短く切り上げ、お礼と「また」を明確に伝える',
+    caution: '一度で全部聞き出そうとしない。関係は続く前提で臨む'
+  },
+  {
+    id: 7,
+    title: '頼み事ができる関係',
+    summary: '小さな頼み事を気軽にできる',
+    topics: [
+      ['具体的な相談', '「これ、〇〇さんの意見を聞きたいんですが」'],
+      ['小さな依頼', '「これ教えていただけたりしますか？」'],
+      ['お互いの近況の深掘り', '「その後どうなりました？」'],
+      ['感謝の言葉', '「前に教えてもらったこと、役立ちました」'],
+      ['相手への協力', '「自分にできることがあれば言ってください」']
+    ],
+    nextConditions: ['小さな頼み事を快く引き受けてくれる', '相手からも頼み事や相談が来る', '結果の報告を喜んでくれる'],
+    nextMove: '頼み事の後、結果と感謝を必ず報告する',
+    caution: '頼みっぱなしにしない。同じくらい相手の力になる機会を探す'
+  },
+  {
+    id: 8,
+    title: '信頼して紹介し合う',
+    summary: 'お互いの人脈を紹介し合う',
+    topics: [
+      ['紹介できる人', '「〇〇さんに合いそうな人がいます」'],
+      ['お互いの実績', '「その後の件、どうなりましたか？」'],
+      ['深い相談', '「実はこれで悩んでいて」'],
+      ['将来の展望', '「これから何をやっていきたいですか？」'],
+      ['感謝と評価', '「〇〇さんのおかげでうまくいきました」']
+    ],
+    nextConditions: ['相手が自分を誰かに紹介してくれる', '紹介した人をきちんと大事にしてくれる', '継続的に連絡を取り合っている'],
+    nextMove: '紹介する時は、双方にとってのメリットを一言添える',
+    caution: '信頼を壊す紹介をしない。合わない人を無理に繋げない'
+  },
+  {
+    id: 9,
+    title: '継続的な協力関係',
+    summary: '定期的に助け合う、Win-Winの関係',
+    topics: [
+      ['定例的な情報共有', '「最近の状況、共有させてください」'],
+      ['お互いの成長', '「あれからどう変わりました？」'],
+      ['次のプロジェクト', '「今度一緒に何かできたら面白そうです」'],
+      ['率直なフィードバック', '「正直な意見をもらえますか？」'],
+      ['感謝の積み重ね', '「いつも助かってます」']
+    ],
+    nextConditions: ['連絡が途切れても自然に再開できる', '困った時に相手から声がかかる', 'お互いの仕事の話を率直にできる'],
+    nextMove: '定期的な接点（月1の近況共有など）を軽く提案する',
+    caution: '関係を利用目的だけにしない。相手の状況・忙しさを尊重する'
+  },
+  {
+    id: 10,
+    title: 'ビジネスパートナー・強い推薦者',
+    summary: 'ここぞという時に力を貸してくれる、推薦してくれる',
+    topics: [
+      ['具体的な協業', '「これ一緒にやりませんか？」'],
+      ['お互いの信用', '「〇〇さんの名前で紹介しても大丈夫ですか？」'],
+      ['長期的な関係', '「これからも長く一緒にやっていきたいです」'],
+      ['率直な意思決定の相談', '「これ、正直どう思います？」'],
+      ['感謝と評価の言語化', '「〇〇さんがいなかったらここまで来られませんでした」']
+    ],
+    nextConditions: ['重要な場面で名前を出して推薦してくれる', '難しい相談にも力を貸してくれる', '対等なパートナーとして扱ってくれる'],
+    nextMove: '関係を当然視せず、節目ごとに感謝と次の協力を言葉にする',
+    caution: '一方的に頼る関係にしない。対等な貢献を続ける'
+  }
+]
+
 // Neutral read of the other person, adapted from the profiling notes.
 export const PERSONALITY_TYPES = [
   {
@@ -376,10 +530,14 @@ export function autoTrack(selfGender, personGender){
 }
 export function resolveTrack(person, selfGender){
   const explicit = person?.communication?.track
-  if(explicit === 'friend' || explicit === 'romance') return explicit
+  if(explicit === 'friend' || explicit === 'romance' || explicit === 'work') return explicit
   return autoTrack(selfGender, person?.gender)
 }
-export function getStages(track){ return track === 'romance' ? RELATIONSHIP_STAGES : FRIEND_STAGES }
+export function getStages(track){
+  if(track === 'romance') return RELATIONSHIP_STAGES
+  if(track === 'work') return WORK_STAGES
+  return FRIEND_STAGES
+}
 
 export function clamp(n, a=0, b=100){ return Math.max(a, Math.min(b,n)) }
 
@@ -416,7 +574,7 @@ export function normalizeCommunication(personOrProfile){
   profile.nextStepSafety={...createEmptyCommunicationProfile().nextStepSafety,...(source.nextStepSafety||{})}
   profile.conversationFlowNotes=source.conversationFlowNotes && typeof source.conversationFlowNotes==='object' ? source.conversationFlowNotes : {}
   profile.stepPlans=source.stepPlans && typeof source.stepPlans==='object' ? source.stepPlans : {}
-  profile.track=(source.track==='friend'||source.track==='romance') ? source.track : 'auto'
+  profile.track=(source.track==='friend'||source.track==='romance'||source.track==='work') ? source.track : 'auto'
 
   profile.conversationLog=Array.isArray(source.conversationLog)
     ? source.conversationLog.filter(Boolean).map(normalizeConversationEntry)

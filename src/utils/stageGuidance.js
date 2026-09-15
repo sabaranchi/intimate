@@ -117,6 +117,62 @@ const FRIEND_COLLECTION_GUIDE = {
   ]
 }
 
+const WORK_MICRO_STEPS = {
+  1:['名刺交換の時、相手の話した内容を一つ覚えてお礼メッセージに添える','次に会える場所や機会を一つ聞いておく','自己紹介は簡潔にし、相手の話を多く聞く'],
+  2:['前回の話を一つ覚えて、次に会った時に振る','相手の名前を会話の中で一度呼ぶ','イベントや勉強会の情報を一つ共有する'],
+  3:['仕事以外の話題を一つ振ってみる','自分の失敗談を一つ話す','相手が広げた雑談にもう一往復付き合う'],
+  4:['相手の強みや視点を一つ具体的に褒める','用がなくても役立ちそうな情報を一つ送る','小さな相談を一つ持ちかけてみる'],
+  5:['有益な情報を一つ渡す。見返りを求めない','1対1で話せる短い時間を提案する','相手の近況を具体的に聞く'],
+  6:['初回の1対1は短めに切り上げる','会話の最後に「また」を明確に伝える','相手の課題や悩みを一つ聞く'],
+  7:['小さな頼み事を一つしてみる','頼んだ結果と感謝を必ず報告する','自分にできることを一つ申し出る'],
+  8:['紹介できそうな人を一人思い浮かべ、提案してみる','相手の実績や近況の続きを聞く','深い相談を一つ持ちかけてみる'],
+  9:['定期的な情報共有を一つ提案する','率直なフィードバックを一つ求めてみる','感謝を具体的な場面で伝える'],
+  10:['具体的な協業や依頼を一つ提案してみる','節目に感謝を言葉にする','対等な立場での相談を持ちかける']
+}
+
+const WORK_COLLECTION_GUIDE = {
+  1: [
+    {source:BASIC,key:'workplace',label:'所属・肩書き',prompt:'次に会う時の話の入口になる',ask:'「どちらの会社で、どんなお仕事を？」',placeholder:'会社・役職'},
+    {source:NOTES,key:'topics',label:'話しやすそうな話題',prompt:'次回の話題ストックになる',ask:'相手が乗ってきた話題を残す',placeholder:'話題の好み'}
+  ],
+  2: [
+    {source:NOTES,key:'topics',label:'前回話した内容',prompt:'「前回の続き」を作る',ask:'次に会った時に振れる話',placeholder:'前回の話題'},
+    {source:BASIC,key:'hobbies',label:'興味・関心事',prompt:'雑談の幅を広げる',ask:'仕事以外で関心がありそうなこと',placeholder:'趣味・関心'}
+  ],
+  3: [
+    {source:NOTES,key:'personality',label:'仕事のスタイル・考え方',prompt:'価値観の合う協力の仕方を探る',ask:'計画型か柔軟型か、など',placeholder:'仕事のスタイル'},
+    {source:BASIC,key:'favourites',label:'好きなもの',prompt:'ちょっとした気遣いのヒント',ask:'好きな店・もの',placeholder:'好きなもの',type:'list'}
+  ],
+  4: [
+    {source:NOTES,key:'commonTopics',label:'重なる分野・関心',prompt:'情報を送る時の的を絞る',ask:'お互いの仕事が重なる部分',placeholder:'重なる分野'},
+    {source:NOTES,key:'wants',label:'今取り組んでいること',prompt:'役に立てるタイミングを掴む',ask:'「今どんなことに力を入れてます？」',placeholder:'今の取り組み'}
+  ],
+  5: [
+    {source:NOTES,key:'wants',label:'求めている情報・人脈',prompt:'渡せる情報のヒントになる',ask:'相手が探している情報・つながり',placeholder:'求めているもの'},
+    {source:NOTES,key:'topics',label:'共有すると喜ばれる情報の種類',prompt:'一方通行にしないため',ask:'相手が反応した情報のジャンル',placeholder:'情報の種類'}
+  ],
+  6: [
+    {source:NOTES,key:'worries',label:'今の課題・悩み',prompt:'力になれる部分を知る',ask:'相手が自分から話した課題だけ残す',placeholder:'課題・悩み'},
+    {source:NOTES,key:'wants',label:'目指していること・目標',prompt:'長期的な関わり方を考える材料',ask:'「今どんなことを目指してます？」',placeholder:'目標・展望'}
+  ],
+  7: [
+    {source:NOTES,key:'worries',label:'相手が頼りたいこと',prompt:'頼み事の的を絞る',ask:'相手が困っていることを覚えておく',placeholder:'頼まれそうなこと'},
+    {source:NOTES,key:'commonTopics',label:'お互いに協力できること',prompt:'頼み・頼まれのバランスを取る',ask:'自分が力になれる分野',placeholder:'協力できること'}
+  ],
+  8: [
+    {source:NOTES,key:'commonTopics',label:'紹介できそうな人・機会',prompt:'信頼を裏切らない紹介にする',ask:'相手に合いそうな人を覚えておく',placeholder:'紹介候補'},
+    {source:NOTES,key:'wants',label:'相手が今ほしいつながり',prompt:'紹介の精度を上げる',ask:'相手が探している人脈',placeholder:'ほしいつながり'}
+  ],
+  9: [
+    {source:NOTES,key:'topics',label:'定期的に話したいテーマ',prompt:'関係を切らさない接点を作る',ask:'お互い関心が続くテーマ',placeholder:'継続的な話題'},
+    {source:NOTES,key:'worries',label:'相手の忙しさ・繁忙期',prompt:'距離が空く時期を責めないため',ask:'相手が話した予定・環境の変化',placeholder:'忙しい時期'}
+  ],
+  10: [
+    {source:NOTES,key:'wants',label:'これから一緒にやりたいこと',prompt:'協業の具体化に使う',ask:'「これから何を一緒にやれそうか」',placeholder:'一緒にやりたいこと'},
+    {source:NOTES,key:'commonTopics',label:'感謝を伝えたい具体的な場面',prompt:'関係を当然視しないため',ask:'実際に助けられた場面',placeholder:'感謝したい場面'}
+  ]
+}
+
 function firstText(value){
   if(Array.isArray(value)) return value.find(Boolean) || ''
   if(typeof value !== 'string') return ''
@@ -130,16 +186,26 @@ export function getKnownAnchor(person){
   return '前に話したこと'
 }
 
+function microStepsTable(track){
+  if(track==='romance') return MICRO_STEPS
+  if(track==='work') return WORK_MICRO_STEPS
+  return FRIEND_MICRO_STEPS
+}
+function collectionGuideTable(track){
+  if(track==='romance') return STAGE_COLLECTION_GUIDE
+  if(track==='work') return WORK_COLLECTION_GUIDE
+  return FRIEND_COLLECTION_GUIDE
+}
+
 export function getMicroSteps(person,stage,track='friend'){
   const anchor=getKnownAnchor(person)
-  const table=track==='romance' ? MICRO_STEPS : FRIEND_MICRO_STEPS
+  const table=microStepsTable(track)
   const steps=table[stage]||table[1]
   return steps.map((step,index)=>index===0&&stage>=2&&stage<=5?`${step}（「${anchor}」を入口に）`:step)
 }
 
 export function getCollectionGuide(stage,track='friend'){
-  const table=track==='romance' ? STAGE_COLLECTION_GUIDE : FRIEND_COLLECTION_GUIDE
-  return table[stage]||[]
+  return collectionGuideTable(track)[stage]||[]
 }
 
 export function getCollectionValue(person,item){
@@ -190,11 +256,28 @@ const REACTION_GUIDE = {
     { sign: '久しぶりでも気まずくない・困った時に連絡し合える', next: '頻度が落ちても続く形を二人で見つける' },
     { sign: '会えばいいが、間が空くと連絡が途切れる', next: '用がなくても近況を送る習慣を続ける' },
     { sign: '距離が空いて自然消滅しそう', next: '責めずに、こちらから軽く再開のきっかけを作る' }
+  ],
+  'work:8': [
+    { sign: '相手が自分を誰かに紹介してくれる／紹介を快く受けてくれる', next: '紹介した・された人を大事にする。9段階へ' },
+    { sign: '紹介はまだないが情報交換は続く', next: '同じ段階でもう一度。まず自分から紹介してみる' },
+    { sign: '距離を置かれる・反応が薄くなる', next: '頼み事や紹介を控え、情報提供に戻る' }
+  ],
+  'work:9': [
+    { sign: '困った時に相手から声がかかる／連絡が途切れても自然に再開する', next: '10段階（継続的な協力関係の先）へ' },
+    { sign: '関係は続くが一方通行気味', next: '自分から協力できることを一つ増やす' },
+    { sign: '連絡が徐々に減る', next: '負担になっていないか見直す。頻度を落として様子を見る' }
+  ],
+  'work:10': [
+    { sign: '重要な場面で名前を出して推薦してくれる／対等に相談し合える', next: '関係を維持。節目ごとに感謝を言葉にする' },
+    { sign: '協力関係だが対等さが弱い', next: '自分の貢献を増やし、対等な関係を作る' },
+    { sign: '関係が薄れてきた', next: '責めずに軽い接点（近況共有）から再開する' }
   ]
 }
 
+function trackKey(track){ return (track === 'romance' || track === 'work') ? track : 'friend' }
+
 export function getReactionGuide(track, stage){
-  return REACTION_GUIDE[`${track === 'romance' ? 'romance' : 'friend'}:${Number(stage)}`] || null
+  return REACTION_GUIDE[`${trackKey(track)}:${Number(stage)}`] || null
 }
 
 // Physical first steps — romance track, stage 9-10 only. All options must be

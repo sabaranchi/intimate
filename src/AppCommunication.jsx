@@ -3,6 +3,7 @@ import MainListCommunication from './components/MainListCommunication'
 import CalendarPage from './components/CalendarPage'
 import CommunicationPersonPage from './components/CommunicationPersonPage'
 import SelfSettings, { createEmptySelf } from './components/SelfSettings'
+import GrowthPage from './components/GrowthPage'
 import * as avatarStore from './utils/avatarStore'
 import * as db from './utils/db'
 import * as friendLogic from './utils/friendLogic'
@@ -47,6 +48,7 @@ export default function AppCommunication(){
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
   const [createAvatarFile, setCreateAvatarFile] = useState(null)
+  const [createTrack, setCreateTrack] = useState('friend')
   const avatarMigrationStarted = useRef(false)
 
   useEffect(()=>{
@@ -134,7 +136,7 @@ export default function AppCommunication(){
     if(createAvatarFile){
       try{ avatarId = await avatarStore.saveCompressedAvatar(createAvatarFile, {maxWidth: 720, quality: 0.82}) }catch(e){}
     }
-    const communication = friendLogic.createEmptyCommunicationProfile()
+    const communication = { ...friendLogic.createEmptyCommunicationProfile(), track: createTrack }
     setPeople(prev=> [...prev, {
       id: String(Date.now() + Math.floor(Math.random() * 1000)),
       name: createName.trim() || '無名',
@@ -148,6 +150,7 @@ export default function AppCommunication(){
     }])
     setCreateName('')
     setCreateAvatarFile(null)
+    setCreateTrack('friend')
     setShowCreateModal(false)
   }
 
@@ -223,6 +226,8 @@ export default function AppCommunication(){
   const currentId = route.startsWith('#person:') ? route.split(':')[1] : null
   const currentPerson = people.find(person=> person.id === currentId)
   const isSelfRoute = route === '#self'
+  const isGrowthRoute = route === '#growth'
+  const isSubRoute = route === '#calendar' || isSelfRoute || isGrowthRoute
 
   return (
     <div className="app-root">
@@ -232,6 +237,7 @@ export default function AppCommunication(){
           <button onClick={()=>{ setShowCreateModal(true); setDrawerOpen(false) }}>新しい人物</button>
           <button onClick={()=>{ setDrawerOpen(false); window.dispatchEvent(new CustomEvent('intimate:enterDeleteMode')) }}>人物を削除</button>
           <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#self' }}>自分の設定</button>
+          <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#growth' }}>自分の成長</button>
           <button onClick={()=>{ setDrawerOpen(false); window.location.hash = '#calendar' }}>カレンダー</button>
           <button onClick={exportJSON}>エクスポート</button>
           <label className="import-btn">インポート<input type="file" accept="application/json" onChange={e=> importJSON(e.target.files[0])} hidden /></label>
@@ -242,13 +248,14 @@ export default function AppCommunication(){
       <main>
         {route === '#calendar' && <CalendarPage people={people} onBack={()=>{ window.location.hash = '#' }} />}
         {isSelfRoute && <SelfSettings self={self} onSave={setSelf} onBack={()=>{ window.location.hash = '#' }} />}
-        {route !== '#calendar' && !isSelfRoute && !currentId && (
+        {isGrowthRoute && <GrowthPage self={self} onSave={setSelf} onBack={()=>{ window.location.hash = '#' }} />}
+        {!isSubRoute && !currentId && (
           <MainListCommunication people={people} self={self} onUpdate={updatePerson} onToggleDrawer={()=> setDrawerOpen(value=> !value)} onDeleteMultiple={deletePeople} onStartCreate={()=> setShowCreateModal(true)} />
         )}
-        {route !== '#calendar' && !isSelfRoute && currentId && currentPerson && (
+        {!isSubRoute && currentId && currentPerson && (
           <CommunicationPersonPage person={currentPerson} self={self} onSave={patch=> updatePerson(currentId, patch)} onBack={()=>{ window.location.hash = '#' }} />
         )}
-        {route !== '#calendar' && !isSelfRoute && currentId && !currentPerson && <p className="empty-state">人物が見つかりません</p>}
+        {!isSubRoute && currentId && !currentPerson && <p className="empty-state">人物が見つかりません</p>}
       </main>
 
       {showCreateModal && (
@@ -258,6 +265,13 @@ export default function AppCommunication(){
             <h3>人物を追加</h3>
             <label>名前<input autoFocus placeholder="名前" value={createName} onChange={e=> setCreateName(e.target.value)} /></label>
             <label>写真<input type="file" accept="image/*" onChange={e=> setCreateAvatarFile(e.target.files[0])} /></label>
+            <label>関係の種類
+              <div className="chip-row">
+                {[['friend','友情'],['romance','ロマンス'],['work','仕事・人脈']].map(([value,label])=> (
+                  <button type="button" key={value} className={createTrack===value ? 'chip chip-on' : 'chip chip-off'} onClick={()=> setCreateTrack(value)}>{label}</button>
+                ))}
+              </div>
+            </label>
             <div className="modal-actions">
               <button onClick={createPerson}>作成</button>
               <button className="secondary" onClick={()=> setShowCreateModal(false)}>キャンセル</button>

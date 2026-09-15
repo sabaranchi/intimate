@@ -98,6 +98,7 @@
 }
 .track-tag.romance{ background: var(--accent-tint); color: var(--accent); }
 .track-tag.friend{ background: var(--surface-sunken); color: var(--ink-muted); }
+.track-tag.work{ background: var(--positive-soft); color: var(--positive); }
 
 .compact-hearts{
   display: flex; align-items: center; gap: 1px;

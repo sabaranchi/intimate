@@ -5,6 +5,7 @@ import * as friendLogic from '../utils/friendLogic'
 import * as conversationFlow from '../utils/conversationFlow'
 import * as stageGuidance from '../utils/stageGuidance'
 import { FALLBACK_AVATAR } from '../utils/avatarFallback'
+import { CHARISMA_GUIDE, NEGOTIATION_GUIDE, NETWORKING_GUIDE } from '../utils/personalGrowth'
 
 const PERSON_TABS = [
   { key: 'relation', label: '関係' },
@@ -22,8 +23,10 @@ const SAFETY_ITEMS = [
 const TRACK_OPTIONS = [
   { value: 'auto', label: '自動' },
   { value: 'friend', label: '友情' },
-  { value: 'romance', label: 'ロマンス' }
+  { value: 'romance', label: 'ロマンス' },
+  { value: 'work', label: '仕事・人脈' }
 ]
+const TRACK_LABELS = { friend: '友情', romance: 'ロマンス', work: '仕事・人脈' }
 
 function todayYMD(){
   const d = new Date()
@@ -157,7 +160,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
   const profile = friendLogic.normalizeCommunication(local)
   const stage = profile.relationshipStage
   const track = friendLogic.resolveTrack(local, self?.gender)
-  const trackLabel = track === 'romance' ? 'ロマンス' : '友情'
+  const trackLabel = TRACK_LABELS[track] || '友情'
   const stages = friendLogic.getStages(track)
   const goalTitle = stages[stages.length - 1].title
   const definition = friendLogic.getStageDefinition(stage, track)
@@ -168,7 +171,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
   const typeDef = friendLogic.getPersonalityType(local.personalityType)
   const hint = selfHint(self)
 
-  const flow = stage ? conversationFlow.getConversationLevel(stage, track) : null
+  const flow = stage && track !== 'work' ? conversationFlow.getConversationLevel(stage, track) : null
   const microSteps = stage ? stageGuidance.getMicroSteps(local, stage, track) : []
   const plan = stage ? (profile.stepPlans?.[stage] || {}) : {}
   const selectedStep = Number.isInteger(plan.selectedStep) ? plan.selectedStep : 0
@@ -206,7 +209,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
       <header className="communication-header">
         <img className="avatar-large" src={avatarUrl || local.avatar || FALLBACK_AVATAR} alt="" />
         <div className="stage-header-copy">
-          <p className="eyebrow">{track === 'romance' ? 'ロマンス（異性）' : '友情（同性）'}</p>
+          <p className="eyebrow">{track === 'romance' ? 'ロマンス（異性）' : track === 'work' ? '仕事・人脈' : '友情（同性）'}</p>
           <h2>{local.name || '無名'}</h2>
           <div className="score-line">
             <span className="score-number">{stage || '—'}</span>
@@ -250,7 +253,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
             <p className="stage-help">できた回数ではなく、相手からも関係が返ってきている段階を選びます。</p>
             <div className="stage-scale" role="radiogroup" aria-label="現在の関係段階">
               {stages.map(item => {
-                const linked = conversationFlow.getConversationLevel(item.id, track)
+                const linked = track !== 'work' ? conversationFlow.getConversationLevel(item.id, track) : null
                 return (
                   <button type="button" role="radio" aria-checked={stage === item.id}
                     className={stage === item.id ? 'stage-step selected' : 'stage-step'}
@@ -259,7 +262,7 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                     <span className="c">
                       <span className="t">{item.title}</span>
                       <span className="s">{item.summary}</span>
-                      <span className="flow-tag">会話: {linked.title}</span>
+                      {linked && <span className="flow-tag">会話: {linked.title}</span>}
                     </span>
                   </button>
                 )
@@ -317,45 +320,47 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
             )}
           </section>
 
-          {definition && flow ? (
+          {definition ? (
             <main className="stage-content">
-              <section className="communication-card flow-card">
-                <div className="section-heading flow-heading">
-                  <div><p className="eyebrow">STAGE {stage} ＝ CONVERSATION LEVEL {flow.id}</p><h3>いまの段階に合う会話</h3></div>
-                  <span className="level-badge">Lv {flow.id}</span>
-                </div>
-                <div className="flow-formula"><small>{flow.title}</small><strong>{flow.formula}</strong><p>{flow.purpose}</p></div>
-
-                <div className="flow-block">
-                  <h4>会話の進め方</h4>
-                  <ol className="flow-moves">{flow.moves.map(move => <li key={move}>{move}</li>)}</ol>
-                </div>
-
-                <div className="flow-block">
-                  <h4>使える言い回し（タップで次の一手に）</h4>
-                  <div className="flow-examples">
-                    {flow.examples.map(example => (
-                      <button type="button" key={example} onClick={()=> updateStepPlan(stage, { draft: example, status: '', outcome: '' })}>{example}</button>
-                    ))}
+              {flow && (
+                <section className="communication-card flow-card">
+                  <div className="section-heading flow-heading">
+                    <div><p className="eyebrow">STAGE {stage} ＝ CONVERSATION LEVEL {flow.id}</p><h3>いまの段階に合う会話</h3></div>
+                    <span className="level-badge">Lv {flow.id}</span>
                   </div>
-                </div>
+                  <div className="flow-formula"><small>{flow.title}</small><strong>{flow.formula}</strong><p>{flow.purpose}</p></div>
 
-                <div className="flow-engine">
-                  <article><small>深掘り</small><p>{flow.deepener}</p></article>
-                  <article><small>仮説で本音を引き出す</small><p>{flow.hypothesis}</p></article>
-                  <article className="invite"><small>断りやすく誘う</small><p>{flow.invitation}</p></article>
-                </div>
+                  <div className="flow-block">
+                    <h4>会話の進め方</h4>
+                    <ol className="flow-moves">{flow.moves.map(move => <li key={move}>{move}</li>)}</ol>
+                  </div>
 
-                <div className="advance-signals">
-                  <strong>次の段階へのサイン</strong>
-                  <div>{flow.advanceSignals.map(signal => <span key={signal}>✓ {signal}</span>)}</div>
-                </div>
-                <p className="ethical-note">避けたい進め方：{flow.caution}</p>
+                  <div className="flow-block">
+                    <h4>使える言い回し（タップで次の一手に）</h4>
+                    <div className="flow-examples">
+                      {flow.examples.map(example => (
+                        <button type="button" key={example} onClick={()=> updateStepPlan(stage, { draft: example, status: '', outcome: '' })}>{example}</button>
+                      ))}
+                    </div>
+                  </div>
 
-                <label className="flow-note-label">この人との会話メモ
-                  <textarea rows="2" value={profile.conversationFlowNotes?.[flow.id] || ''} onChange={event=> updateFlowNote(flow.id, event.target.value)} placeholder="使えそうな話題、前に出た言葉、次に聞きたいこと" />
-                </label>
-              </section>
+                  <div className="flow-engine">
+                    <article><small>深掘り</small><p>{flow.deepener}</p></article>
+                    <article><small>仮説で本音を引き出す</small><p>{flow.hypothesis}</p></article>
+                    <article className="invite"><small>断りやすく誘う</small><p>{flow.invitation}</p></article>
+                  </div>
+
+                  <div className="advance-signals">
+                    <strong>次の段階へのサイン</strong>
+                    <div>{flow.advanceSignals.map(signal => <span key={signal}>✓ {signal}</span>)}</div>
+                  </div>
+                  <p className="ethical-note">避けたい進め方：{flow.caution}</p>
+
+                  <label className="flow-note-label">この人との会話メモ
+                    <textarea rows="2" value={profile.conversationFlowNotes?.[flow.id] || ''} onChange={event=> updateFlowNote(flow.id, event.target.value)} placeholder="使えそうな話題、前に出た言葉、次に聞きたいこと" />
+                  </label>
+                </section>
+              )}
 
               <section className="communication-card momentum-card">
                 <div className="section-heading"><p className="eyebrow">NEXT STEP</p><h3>次の一手</h3></div>
@@ -542,6 +547,24 @@ export default function CommunicationPersonPage({ person, self, onSave, onBack }
                 </ul>
                 <p className="ethical-note">相手が心地よいか・緊張していないかを読む手がかりとして使う。</p>
               </details>
+
+              <details className="communication-card cues-card flow-details">
+                <summary><span><small>CHARISMA</small><strong>信頼・好かれる基本</strong></span></summary>
+                <ul className="cues-list">{CHARISMA_GUIDE.map(x => <li key={x}>{x}</li>)}</ul>
+              </details>
+
+              {track === 'work' && (
+                <>
+                  <details className="communication-card cues-card flow-details">
+                    <summary><span><small>NEGOTIATION</small><strong>交渉の基本</strong></span></summary>
+                    <ul className="cues-list">{NEGOTIATION_GUIDE.map(x => <li key={x}>{x}</li>)}</ul>
+                  </details>
+                  <details className="communication-card cues-card flow-details">
+                    <summary><span><small>NETWORKING</small><strong>人脈作りの基本</strong></span></summary>
+                    <ul className="cues-list">{NETWORKING_GUIDE.map(x => <li key={x}>{x}</li>)}</ul>
+                  </details>
+                </>
+              )}
 
               <section className="communication-card addressing-card">
                 <div className="section-heading"><p className="eyebrow">NAMES</p><h3>実際になんと呼び合う？</h3></div>
