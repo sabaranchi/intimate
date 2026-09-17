@@ -4,6 +4,18 @@ import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 
 const REL_PRESETS = ['中学','高校','大学','友達','恋人','元恋人','先輩','後輩','サークル','バイト','職場','上司','同僚','部下','家族','趣味仲間','SNS友達','近所','その他']
 
+const LIFE_STAGES = [
+  ['family', '家族構成・エピソード', '家族構成、両親・兄弟との関係、印象に残っているエピソードなど'],
+  ['childhood', '幼少期', '小さい頃の性格、育った環境、印象的な出来事'],
+  ['middleSchool', '中学時代', '部活・友人関係、当時の出来事やあだ名'],
+  ['highSchool', '高校時代', '打ち込んでいたこと、印象的な出来事や転機'],
+  ['university', '大学・専門学校時代', '専攻、サークル・バイト、印象的な出来事'],
+  ['workLife', '社会人になってから', '仕事内容、キャリアの転機、今の働き方'],
+  ['romanceHistory', '恋愛関係', 'これまでの恋愛観や経験。無理に聞き出さず、自然に話した範囲で'],
+  ['marriage', '結婚生活', 'パートナーとの関係、結婚生活の様子'],
+  ['kids', '子どものエピソード', '子どもの年齢・性格、印象に残っているエピソード']
+]
+
 export default function PersonPage({person, onSave, onBack, embedded=false, tab: tabProp, onChange}){
   const [tabState, setTabState] = useState('basic')
   const tab = embedded ? (tabProp || 'basic') : tabState
@@ -734,12 +746,35 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
 
         {tab==='notes' && (
           <div className="notes">
+            <div className="basic-label notes-group-label">会話のヒント</div>
             <label>前回話した内容<textarea data-cat="notesMeta" data-id="lastConversationSummary" ref={el=>{ if(el) autosize(el) }} value={local.lastConversationSummary||''} onChange={e=>{ setLocal({...local, lastConversationSummary:e.target.value}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.lastConversationSummary) ? local.fieldHeights.notesMeta.lastConversationSummary + 'px' : undefined}} /></label>
             <label>性格の特徴<textarea data-cat="notesMeta" data-id="personality" ref={el=>{ if(el) autosize(el) }} value={local.notes?.personality||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, personality:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.personality) ? local.fieldHeights.notesMeta.personality + 'px' : undefined}} /></label>
             <label>悩み事<textarea data-cat="notesMeta" data-id="worries" ref={el=>{ if(el) autosize(el) }} value={local.notes?.worries||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, worries:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.worries) ? local.fieldHeights.notesMeta.worries + 'px' : undefined}} /></label>
             <label>したい事<textarea data-cat="notesMeta" data-id="wants" ref={el=>{ if(el) autosize(el) }} value={local.notes?.wants||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, wants:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.wants) ? local.fieldHeights.notesMeta.wants + 'px' : undefined}} /></label>
             <label>話題の好み<textarea data-cat="notesMeta" data-id="topics" ref={el=>{ if(el) autosize(el) }} value={local.notes?.topics||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, topics:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.topics) ? local.fieldHeights.notesMeta.topics + 'px' : undefined}} /></label>
             <label>共通の話題<textarea data-cat="notesMeta" data-id="commonTopics" ref={el=>{ if(el) autosize(el) }} value={local.notes?.commonTopics||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, commonTopics:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.commonTopics) ? local.fieldHeights.notesMeta.commonTopics + 'px' : undefined}} /></label>
+
+            <div className="life-story">
+              <div className="life-story-heading">
+                <div className="basic-label">ライフストーリー</div>
+                <p className="life-story-hint">無理に聞き出さず、相手が自然に話した範囲で残しておく</p>
+              </div>
+              {LIFE_STAGES.map(([key, label, placeholder])=>{
+                const value = local.notes?.lifeStory?.[key] || ''
+                return (
+                  <details key={key} className="life-story-item" open={Boolean(value)}>
+                    <summary>{label}</summary>
+                    <textarea data-cat="lifeStory" data-id={key} ref={el=>{ if(el) autosize(el) }} rows={2} value={value} placeholder={placeholder} onChange={e=>{
+                      const text = e.target.value
+                      setLocal(prev=> ({...prev, notes: {...prev.notes, lifeStory: {...(prev.notes?.lifeStory||{}), [key]: text}}}))
+                      autosize(e.target)
+                    }} onFocus={e=> { e.target.scrollIntoView({behavior:'smooth', block:'center'}); autosize(e.target) }} style={{height: (local.fieldHeights?.lifeStory?.[key]) ? local.fieldHeights.lifeStory[key] + 'px' : undefined}} />
+                  </details>
+                )
+              })}
+            </div>
+
+            <div className="basic-label notes-group-label">その他のメモ</div>
             <div className="notes-entries">
               {(local.notes?.entries||[]).map((en, i)=> (
                 <div key={en.id} onDragEnter={e=> e.currentTarget.classList.add('drag-over')} onDragLeave={e=> e.currentTarget.classList.remove('drag-over')} onDragOver={onDragOver} onDrop={e=> { e.currentTarget.classList.remove('drag-over'); onDrop('notes', i, e) }}>

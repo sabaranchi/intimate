@@ -5,7 +5,6 @@
 
 .stage-page{ padding-bottom: 120px; }
 
-.stage-picker-card,
 .stage-empty{
   margin-bottom: var(--sp-3);
   padding: var(--sp-4);
@@ -14,14 +13,39 @@
   background: var(--surface);
   box-shadow: var(--shadow-1);
 }
-.stage-picker-card h3,
-.stage-content h3{ font-size: var(--fs-md); }
 .stage-help{
-  margin: var(--sp-2) 0 var(--sp-3);
-  font-size: var(--fs-xs);
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-sm);
   line-height: var(--lh-normal);
   color: var(--ink-muted);
 }
+
+/* ---------------- Current-stage summary (compact, replaces the always-open picker) ---------------- */
+.current-stage-summary{
+  display: flex; align-items: center; gap: var(--sp-3);
+}
+.current-stage-n{
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  min-width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--ink-on-accent);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+.current-stage-summary strong{ display: block; font-size: var(--fs-base); }
+.current-stage-summary p{ margin-top: 2px; font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.45; }
+.stage-picker-toggle{
+  width: 100%;
+  margin-top: var(--sp-3);
+  min-height: 40px;
+  background: var(--surface-sunken);
+  color: var(--accent);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.current-stage-card .stage-scale{ margin-top: var(--sp-3); }
 
 /* ---------------- Stage picker (vertical scale) ---------------- */
 .stage-scale{ display: flex; flex-direction: column; gap: var(--sp-2); }
@@ -74,15 +98,35 @@
 .journey-strip span{ font-size: var(--fs-2xs); color: var(--ink-muted); }
 
 /* ---------------- Conversation log ---------------- */
+.convo-add-toggle{
+  width: 100%;
+  min-height: 44px;
+  background: var(--accent-tint);
+  border-color: var(--line);
+  color: var(--accent);
+  font-weight: 700;
+}
 .convo-form{
   display: flex; flex-direction: column; gap: var(--sp-2);
+  margin-top: var(--sp-2);
   padding: var(--sp-3);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   background: var(--surface-sunken);
 }
 .convo-form label{ margin-top: 0; }
-.convo-form .advance{ margin-top: var(--sp-1); }
+.convo-form-actions{ display: flex; gap: var(--sp-2); margin-top: var(--sp-1); }
+.convo-form-actions .advance{ flex: 1; }
+.convo-form-actions .secondary{ flex: 0 0 auto; }
+.convo-more-toggle{
+  width: 100%;
+  margin-top: var(--sp-2);
+  min-height: 36px;
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-muted);
+  font-size: var(--fs-xs);
+}
 
 .convo-list{
   list-style: none; margin: var(--sp-3) 0 0; padding: 0;

@@ -307,6 +307,48 @@
 .notes label{ display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-3); }
 .note-entry{ gap: var(--sp-2); }
 
+.notes-group-label{
+  margin-top: var(--sp-5);
+  padding-bottom: var(--sp-1);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  letter-spacing: .04em;
+  color: var(--accent);
+}
+.notes-group-label:first-child{ margin-top: 0; }
+
+/* ---------------- Life story (メモ tab) ---------------- */
+.life-story{ margin-top: var(--sp-2); }
+.life-story-heading{ margin-bottom: var(--sp-2); }
+.life-story-hint{ margin-top: 2px; font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.5; }
+.life-story-item{
+  margin-top: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-raised);
+}
+.life-story-item summary{
+  min-height: 44px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.life-story-item summary::-webkit-details-marker{ display: none; }
+.life-story-item summary::after{ content: '＋'; color: var(--accent); font-weight: 800; }
+.life-story-item[open] summary::after{ content: '−'; }
+.life-story-item textarea{
+  width: 100%;
+  margin: 0 0 var(--sp-2);
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  resize: none;
+}
+
 .tab-body textarea{ overflow: hidden; }
 
 /* ---------------- Drop target ---------------- */

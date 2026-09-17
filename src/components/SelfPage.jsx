@@ -4,8 +4,7 @@ import corpus from '../utils/hanshengCorpus.json'
 import { normalizePractice, localDay, PRINCIPLES, OS_QUESTIONS, SCORE_AXES, ROUTINES, personContext } from '../utils/selfPractice'
 import '../self.css'
 
-const TABS = [['today','今日'],['prepare','会う前'],['train','練習'],['library','資料庫'],['profile','プロフィール']]
-const LIBRARY = [...corpus.scenes.map(x=>({...x,kind:'場面'})),...corpus.templates.map(x=>({...x,kind:'会話',category:'会話テンプレ'})),...corpus.guides.map(x=>({...x,kind:'ガイド',category:'実践ガイド'}))]
+const TABS = [['today','今日'],['prepare','会う前'],['train','練習'],['profile','プロフィール']]
 const textOf = value => typeof value === 'string' ? value : ''
 function Field({label,value,onChange,placeholder,rows=2}){return <label className="self-field"><span>{label}</span><textarea rows={rows} value={textOf(value)} onChange={e=>onChange(e.target.value)} placeholder={placeholder}/></label>}
 function Card({eyebrow,title,children,className=''}){return <section className={`self-card ${className}`}><p className="eyebrow">{eyebrow}</p><h2>{title}</h2>{children}</section>}
@@ -14,8 +13,6 @@ function SourceText({text}){return <div className="self-source-text">{text.split
 export default function SelfPage({self,people,onSave,onBack,saveStatus,onRetry}){
   const [tab,setTab]=useState('today')
   const [personId,setPersonId]=useState('general')
-  const [query,setQuery]=useState('')
-  const [category,setCategory]=useState('すべて')
   const [month,setMonth]=useState(localDay().slice(0,7))
   const p=normalizePractice(self.practice)
   const today=localDay()
@@ -26,7 +23,7 @@ export default function SelfPage({self,people,onSave,onBack,saveStatus,onRetry})
   const person=people.find(x=>String(x.id)===personId)
   const prep=p.preparations[personId]||{}
   const monthly=p.monthly[month]||{}
-  const pinned=[...PRINCIPLES,...LIBRARY].filter(x=>p.pins.includes(x.id))
+  const pinned=PRINCIPLES.filter(x=>p.pins.includes(x.id))
   const completed=corpus.days.filter(d=>p.training[d.id]?.done).length
   function update(fn){onSave(prev=>({...prev,practice:fn(normalizePractice(prev.practice)),updatedAt:new Date().toISOString()}))}
   function setDaily(key,value){update(v=>({...v,daily:{...v.daily,[today]:{...v.daily[today],[key]:value}}}))}
@@ -35,7 +32,6 @@ export default function SelfPage({self,people,onSave,onBack,saveStatus,onRetry})
   function setMonthly(key,value){update(v=>({...v,monthly:{...v.monthly,[month]:{...v.monthly[month],[key]:value}}}))}
   function pin(id){update(v=>({...v,pins:v.pins.includes(id)?v.pins.filter(x=>x!==id):[...v.pins,id]}))}
   function focus(text){setDaily('focus',text);setTab('today')}
-  const results=LIBRARY.filter(x=>(category==='すべて'||x.category===category)&&`${x.title} ${x.text}`.toLowerCase().includes(query.trim().toLowerCase()))
 
   return <div className="self-hub">
     <header className="self-hero">
@@ -88,11 +84,6 @@ export default function SelfPage({self,people,onSave,onBack,saveStatus,onRetry})
         <div className="self-scores">{SCORE_AXES.map(axis=><label key={axis}><span>{axis}</span><select value={monthly[axis]||''} onChange={e=>setMonthly(axis,e.target.value?Number(e.target.value):'')}><option value="">未評価</option>{Array.from({length:10},(_,i)=><option key={i+1} value={i+1}>{i+1} / 10</option>)}</select></label>)}</div>
         <Field label="そう感じた具体的な行動・変化" value={monthly.evidence} onChange={v=>setMonthly('evidence',v)} placeholder="例：断られても引きずらず、別の提案を考えられた"/><Field label="来月の重点を一つ" value={monthly.next} onChange={v=>setMonthly('next',v)} placeholder="例：頼まれた小さな仕事を、期限より前に返す"/>
       </Card>
-    </>}
-    {tab==='library'&&<>
-      <Card eyebrow="THE HANSHENG PLAYBOOK" title="必要なときに、必要な一枚。"><p className="self-muted">100場面・会話テンプレ50本・4つの実践ガイド。添付の訓練書を収録し、今日の実践へつなげます。</p><label className="self-field"><span>言葉や場面で検索</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="断られた、初対面、交渉、声…"/></label><label className="self-field"><span>テーマ</span><select value={category} onChange={e=>setCategory(e.target.value)}>{['すべて',...new Set(LIBRARY.map(x=>x.category))].map(x=><option key={x}>{x}</option>)}</select></label><p className="self-muted" role="status">{results.length}件</p></Card>
-      <div className="self-library">{results.map(item=><details className="self-card" key={item.id}><summary><small>{item.kind}{item.number?` ${String(item.number).padStart(2,'0')}`:''} · {item.category}</small><strong>{item.title}</strong></summary><SourceText text={item.text}/><div className="self-inline-actions"><button className="self-quiet" aria-pressed={p.pins.includes(item.id)} onClick={()=>pin(item.id)}>{p.pins.includes(item.id)?'固定を外す':'忘れたくないことに固定'}</button><button onClick={()=>focus(`${item.title}：${item.text.replace(/\*\*/g,'')}`)}>今日の意識にする</button></div></details>)}</div>{!results.length&&<p className="self-muted">見つかりませんでした。短い言葉や、別のテーマで探してください。</p>}
-      <p className="self-source-note">出典：添付の「現実版・陳漢昇」訓練書。原作の場面解釈は添付資料によるものです。創作の人物像を練習に活用する資料であり、効果を保証するものではありません。</p>
     </>}
     {tab==='profile'&&<><p className="self-muted">これまでの自分の設定です。相手ごとの提案やトラック判定にも使われます。</p><SelfSettings self={self} onSave={onSave} embedded/></>}
     </div>

@@ -54,6 +54,18 @@
 .flow-moves{ margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: var(--sp-1); }
 .flow-moves li{ font-size: var(--fs-sm); line-height: 1.5; }
 
+.flow-more{ margin-top: var(--sp-4); }
+.flow-more summary{
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--accent);
+}
+.flow-more summary::-webkit-details-marker{ display: none; }
+.flow-more summary::after{ content: ' ＋'; }
+.flow-more[open] summary::after{ content: ' −'; }
+
 .flow-examples{ display: flex; flex-direction: column; gap: var(--sp-2); }
 .flow-examples button{
   width: 100%;
@@ -200,6 +212,24 @@
 .outcome-message strong{ font-size: var(--fs-sm); }
 .outcome-message p{ margin-top: 2px; font-size: var(--fs-xs); color: var(--ink-muted); line-height: 1.5; }
 
+/* ---------------- Inline safety checklist (folded into the momentum card) ---------------- */
+.safety-inline{ margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+.safety-inline-label{ font-size: var(--fs-xs); font-weight: 700; color: var(--ink-muted); margin-bottom: var(--sp-2); }
+.safety-inline-checks{ display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.safety-chip{
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  min-height: 36px;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.safety-chip.checked{ border-color: var(--positive-line); background: var(--positive-soft); color: var(--positive); }
+.safety-chip input{ width: 15px; height: 15px; margin: 0; accent-color: var(--positive); }
+
 /* ---------------- Knowledge card ---------------- */
 .knowledge-list{ display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-2); }
 .knowledge-item{
@@ -251,14 +281,15 @@
 
 /* ---------------- Track switch (header) ---------------- */
 .track-switch{
-  display: inline-flex; gap: 2px;
+  display: flex; flex-wrap: wrap; gap: 2px;
   margin-top: var(--sp-2);
   padding: 2px;
   border: 1px solid var(--line-strong);
-  border-radius: var(--r-pill);
+  border-radius: var(--r-md);
   background: var(--surface-sunken);
 }
 .track-opt{
+  flex: 1 1 auto;
   min-height: 30px;
   padding: 0 var(--sp-2);
   border: none;
@@ -267,8 +298,16 @@
   font-size: var(--fs-2xs);
   font-weight: 700;
   color: var(--ink-muted);
+  white-space: nowrap;
 }
 .track-opt.active{ background: var(--accent); color: var(--ink-on-accent); }
+
+/* ---------------- "この人について" card — grouped sub-sections ---------------- */
+.about-sub{ margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+.about-sub:first-child{ margin-top: 0; padding-top: 0; border-top: none; }
+.about-sub h4{ margin: 0 0 var(--sp-2); font-size: var(--fs-sm); color: var(--ink-muted); }
+.about-sub .section-heading.with-progress{ margin-bottom: 0; }
+.about-sub .section-heading.with-progress h4{ margin: 0; }
 
 /* ---------------- Personality type card ---------------- */
 .type-picker{ display: flex; flex-wrap: wrap; gap: var(--sp-2); }

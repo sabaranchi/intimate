@@ -64,8 +64,8 @@
   --overlay: rgba(40,24,12,.46);
 
   --ink: #2c2118;
-  --ink-muted: #6d5a48;
-  --ink-faint: #93826f;
+  --ink-muted: #5f4d3c;
+  --ink-faint: #786348;
   --ink-on-accent: #fff8f2;
 
   --line: rgba(117,80,46,.30);
@@ -111,8 +111,8 @@
     --overlay: rgba(0,0,0,.62);
 
     --ink: #f1e7d6;
-    --ink-muted: #c3b39c;
-    --ink-faint: #8c7c69;
+    --ink-muted: #cabca6;
+    --ink-faint: #a89877;
     --ink-on-accent: #23150f;
 
     --line: rgba(226,197,157,.16);
