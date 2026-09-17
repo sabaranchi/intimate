@@ -251,7 +251,7 @@
   display: flex; flex-wrap: wrap; gap: var(--sp-2);
   margin-bottom: var(--sp-3);
 }
-.section-toolbar button{ min-height: 38px; padding: var(--sp-1) var(--sp-3); font-size: var(--fs-sm); }
+.section-toolbar button{ min-height: var(--tap-min); padding: var(--sp-1) var(--sp-3); font-size: var(--fs-sm); }
 
 /* ---------------- 気にかけたい人 ---------------- */
 .care-list{

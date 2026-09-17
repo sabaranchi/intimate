@@ -71,10 +71,12 @@ export default function CalendarPage({ people, onBack }){
   return (
     <div className="calendar-page">
       <div className="calendar-nav">
-        <button onClick={onBack}>← 戻る</button>
-        <button onClick={prevMonth}>〈 前月</button>
-        <div className="calendar-title">{year}年 {month+1}月</div>
-        <button onClick={nextMonth}>次月 〉</button>
+        <button className="calendar-back" onClick={onBack}>← 戻る</button>
+        <div className="calendar-month-nav">
+          <button onClick={prevMonth} aria-label="前月">〈</button>
+          <div className="calendar-title">{year}年 {month+1}月</div>
+          <button onClick={nextMonth} aria-label="次月">〉</button>
+        </div>
       </div>
       <div className="calendar-legend">
         <span><i className="dot birthday" />🎂 誕生日</span>

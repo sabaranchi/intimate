@@ -216,9 +216,10 @@
 .safety-inline{ margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--line); }
 .safety-inline-label{ font-size: var(--fs-xs); font-weight: 700; color: var(--ink-muted); margin-bottom: var(--sp-2); }
 .safety-inline-checks{ display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.safety-chip{
-  display: inline-flex; align-items: center; gap: var(--sp-1);
-  min-height: 36px;
+.safety-inline .safety-chip{
+  display: inline-flex; flex-direction: row; align-items: center; gap: var(--sp-1);
+  width: auto;
+  min-height: 36px; margin-top: 0;
   padding: var(--sp-1) var(--sp-3);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
@@ -227,8 +228,8 @@
   font-weight: 600;
   cursor: pointer;
 }
-.safety-chip.checked{ border-color: var(--positive-line); background: var(--positive-soft); color: var(--positive); }
-.safety-chip input{ width: 15px; height: 15px; margin: 0; accent-color: var(--positive); }
+.safety-inline .safety-chip.checked{ border-color: var(--positive-line); background: var(--positive-soft); color: var(--positive); }
+.safety-inline .safety-chip input{ width: 15px; height: 15px; margin: 0; accent-color: var(--positive); }
 
 /* ---------------- Knowledge card ---------------- */
 .knowledge-list{ display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-2); }

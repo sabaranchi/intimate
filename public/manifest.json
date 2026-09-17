@@ -3,8 +3,8 @@
   "short_name": "関係",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#efe1c8",
-  "theme_color": "#a94d3f",
+  "background_color": "#f8ece6",
+  "theme_color": "#dd4f68",
   "description": "会った回数ではなく、相手から返ってきた反応で関係の現在地を記録するアプリ",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }

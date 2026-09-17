@@ -1,6 +1,6 @@
 /* =============================================================
    theme.css — single source of truth for design tokens
-   Warm "relationship journal" aesthetic. Light + dark (system).
+   Warm, clean "rose" aesthetic (2026-09-18 refresh). Light + dark (system).
    Load this FIRST, before every other stylesheet.
    ============================================================= */
 
@@ -39,10 +39,10 @@
   --r-xl: 20px;
   --r-pill: 999px;
 
-  /* ---------- Elevation ---------- */
-  --shadow-1: 0 1px 2px rgba(67,42,24,.08), 0 4px 12px rgba(67,42,24,.06);
-  --shadow-2: 0 8px 24px rgba(67,42,24,.12);
-  --shadow-3: 0 16px 40px rgba(55,34,20,.20);
+  /* ---------- Elevation (soft, warm-tinted — not heavy/dark) ---------- */
+  --shadow-1: 0 1px 2px rgba(64,32,28,.05), 0 3px 10px rgba(64,32,28,.05);
+  --shadow-2: 0 6px 20px rgba(64,32,28,.10);
+  --shadow-3: 0 16px 36px rgba(52,26,22,.16);
 
   /* ---------- Layout / motion ---------- */
   --content-max: 760px;
@@ -53,38 +53,38 @@
   /* ======================================================
      Color — light (default)
      ====================================================== */
-  --bg: #efe1c8;
+  --bg: #f8ece6;
   --bg-gradient:
-     radial-gradient(circle at 12% 0%, rgba(255,250,231,.70), transparent 34%),
-     linear-gradient(165deg, #ddc39a 0%, #ecd8b4 46%, #d0ac7d 100%);
+     radial-gradient(circle at 15% -8%, rgba(255,255,255,.8), transparent 42%),
+     linear-gradient(180deg, #fbf2ee 0%, #f6e6de 100%);
 
-  --surface: #fff8ec;
-  --surface-sunken: #f6e7cf;
-  --surface-raised: #fffdf7;
-  --overlay: rgba(40,24,12,.46);
+  --surface: #ffffff;
+  --surface-sunken: #f7e8e1;
+  --surface-raised: #fffcfb;
+  --overlay: rgba(38,20,17,.48);
 
-  --ink: #2c2118;
-  --ink-muted: #5f4d3c;
-  --ink-faint: #786348;
-  --ink-on-accent: #fff8f2;
+  --ink: #2a1f1c;
+  --ink-muted: #6c5850;
+  --ink-faint: #83706a;
+  --ink-on-accent: #fff7f6;
 
-  --line: rgba(117,80,46,.30);
-  --line-strong: rgba(117,80,46,.52);
+  --line: rgba(122,72,58,.16);
+  --line-strong: rgba(122,72,58,.30);
 
-  --accent: #a94d3f;
-  --accent-hover: #974235;
-  --accent-soft: #edd0bd;
-  --accent-tint: rgba(169,77,63,.10);
+  --accent: #dd4f68;
+  --accent-hover: #c8425a;
+  --accent-soft: #f7d3dc;
+  --accent-tint: rgba(221,79,104,.10);
 
-  --positive: #5f8a54;
-  --positive-soft: #dfead5;
-  --positive-line: #86a878;
-  --warning: #b0782a;
+  --positive: #4c9362;
+  --positive-soft: #ddefe1;
+  --positive-line: #7cba8a;
+  --warning: #bd7a2c;
 
-  --heart-filled: #c8483b;
-  --heart-empty: rgba(90,60,40,.26);
+  --heart-filled: #dd4f68;
+  --heart-empty: rgba(110,66,56,.22);
 
-  --focus-ring: #2f6f9e;
+  --focus-ring: #3178a8;
 
   /* ---------- Aliases consumed by communication.css / stage.css ---------- */
   --comm-ink: var(--ink);
@@ -100,42 +100,42 @@
 
 @media (prefers-color-scheme: dark){
   :root{
-    --bg: #1b1611;
+    --bg: #15100e;
     --bg-gradient:
-       radial-gradient(circle at 12% 0%, rgba(120,90,55,.22), transparent 42%),
-       linear-gradient(165deg, #241d16 0%, #1b1611 55%, #140f0b 100%);
+       radial-gradient(circle at 15% -8%, rgba(120,60,55,.20), transparent 42%),
+       linear-gradient(180deg, #1c1512 0%, #140f0d 100%);
 
-    --surface: #2a231b;
-    --surface-sunken: #221c15;
-    --surface-raised: #332a20;
-    --overlay: rgba(0,0,0,.62);
+    --surface: #241a17;
+    --surface-sunken: #1c1412;
+    --surface-raised: #2d211d;
+    --overlay: rgba(0,0,0,.60);
 
-    --ink: #f1e7d6;
-    --ink-muted: #cabca6;
-    --ink-faint: #a89877;
-    --ink-on-accent: #23150f;
+    --ink: #f5e9e3;
+    --ink-muted: #cbb5ac;
+    --ink-faint: #a48d84;
+    --ink-on-accent: #2a1015;
 
-    --line: rgba(226,197,157,.16);
-    --line-strong: rgba(226,197,157,.30);
+    --line: rgba(232,196,188,.14);
+    --line-strong: rgba(232,196,188,.28);
 
-    --accent: #e18a5c;
-    --accent-hover: #ee9868;
-    --accent-soft: #46332759;
-    --accent-tint: rgba(225,138,92,.14);
+    --accent: #ef7d92;
+    --accent-hover: #f3909f;
+    --accent-soft: #4a2731;
+    --accent-tint: rgba(239,125,146,.16);
 
-    --positive: #8fb182;
-    --positive-soft: #2c362790;
-    --positive-line: #6f8e63;
-    --warning: #d5a14e;
+    --positive: #7fbf8f;
+    --positive-soft: #23332a;
+    --positive-line: #5c8f6c;
+    --warning: #dba25a;
 
-    --heart-filled: #e5695b;
-    --heart-empty: rgba(226,197,157,.20);
+    --heart-filled: #ef7d92;
+    --heart-empty: rgba(232,196,188,.20);
 
-    --focus-ring: #74b2dc;
+    --focus-ring: #72b6dd;
 
-    --shadow-1: 0 1px 2px rgba(0,0,0,.40), 0 4px 12px rgba(0,0,0,.30);
-    --shadow-2: 0 8px 24px rgba(0,0,0,.45);
-    --shadow-3: 0 16px 40px rgba(0,0,0,.55);
+    --shadow-1: 0 1px 2px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.28);
+    --shadow-2: 0 8px 22px rgba(0,0,0,.40);
+    --shadow-3: 0 16px 38px rgba(0,0,0,.50);
   }
 }
 
@@ -186,7 +186,7 @@ button, input, select, textarea{ font-family: inherit; color: var(--ink); }
 input, select, textarea{ font-size: var(--fs-input); }
 
 button{
-  min-height: 40px;
+  min-height: var(--tap-min);
   padding: var(--sp-2) var(--sp-4);
   border: 1px solid var(--line-strong);
   border-radius: var(--r-md);

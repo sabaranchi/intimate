@@ -701,7 +701,7 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
                       const src = isObj && ph.id ? (photoUrls[ph.id] || '') : (typeof ph === 'string' ? ph : '')
                       return (
                       <div key={idx} style={{position:'relative',cursor:'pointer'}}>
-                        <img src={src} alt="memory" loading="lazy" style={{width:'100%',borderRadius:6,border:'1px solid #7a5230',objectFit:'cover',minHeight:60,background:'#111'}} onClick={()=>{
+                        <img src={src} alt="memory" loading="lazy" style={{width:'100%',borderRadius:6,border:'1px solid var(--line-strong)',objectFit:'cover',minHeight:60,background:'var(--surface-sunken)'}} onClick={()=>{
                           if(isObj && ph.id){
                             const url = photoUrls[ph.id]
                             if(url) setExpandedPhoto(url)
