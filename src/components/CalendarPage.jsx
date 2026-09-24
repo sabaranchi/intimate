@@ -31,15 +31,11 @@ export default function CalendarPage({ people, onBack }){
     const map = {}
     const peopleArray = Array.isArray(people) ? people : []
     peopleArray.forEach(p=>{
-      if(!p || !p.lastInteractionDate) return
-      const lastDate = new Date(p.lastInteractionDate)
-      if(isNaN(lastDate)) return
-      // 最後に話してから3週間ほど経つ頃 — 「そろそろ気にかけたい人」として穏やかに表示
-      const followUp = new Date(lastDate)
-      followUp.setDate(followUp.getDate() + 21)
-      const m = followUp.getMonth()
-      const d = followUp.getDate()
-      const key = `${m}-${d}`
+      // Only show dates the user chose, never contact-frequency pressure.
+      if(!p || !p.followUpDate) return
+      const followUp = new Date(p.followUpDate + 'T12:00:00')
+      if(isNaN(followUp)) return
+      const key = fmtYMD(followUp)
       if(!map[key]) map[key] = []
       map[key].push(p)
     })
@@ -57,7 +53,7 @@ export default function CalendarPage({ people, onBack }){
     for(let d=1; d<=days; d++){
       const key = `${month}-${d}`
       const bds = birthdaysByMonthDay[key] || []
-      const followUps = followUpsByMonthDay[key] || []
+      const followUps = followUpsByMonthDay[fmtYMD(new Date(year,month,d))] || []
       cells.push({ type:'day', day:d, birthdays: bds, followUps })
     }
     // ensure full weeks (multiple of 7)
@@ -80,7 +76,7 @@ export default function CalendarPage({ people, onBack }){
       </div>
       <div className="calendar-legend">
         <span><i className="dot birthday" />🎂 誕生日</span>
-        <span><i className="dot followup" />🌱 そろそろ気にかけたい人</span>
+        <span><i className="dot followup" />🌱 メモした予定</span>
       </div>
       <div className="calendar-grid">
         {['日','月','火','水','木','金','土'].map(w=> (

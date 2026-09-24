@@ -1,11 +1,11 @@
 {
-  "name": "関係性グラデーション",
-  "short_name": "関係",
+  "name": "人のノート｜山田モード",
+  "short_name": "人のノート",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f8ece6",
   "theme_color": "#dd4f68",
-  "description": "会った回数ではなく、相手から返ってきた反応で関係の現在地を記録するアプリ",
+  "description": "飾らず人に興味を向けるための、短いひと言と人のノート",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

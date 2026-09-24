@@ -746,7 +746,8 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
 
         {tab==='notes' && (
           <div className="notes">
-            <div className="basic-label notes-group-label">会話のヒント</div>
+            <details className="y-card">
+            <summary>詳しいメモ・以前の記録</summary>
             <label>前回話した内容<textarea data-cat="notesMeta" data-id="lastConversationSummary" ref={el=>{ if(el) autosize(el) }} value={local.lastConversationSummary||''} onChange={e=>{ setLocal({...local, lastConversationSummary:e.target.value}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.lastConversationSummary) ? local.fieldHeights.notesMeta.lastConversationSummary + 'px' : undefined}} /></label>
             <label>性格の特徴<textarea data-cat="notesMeta" data-id="personality" ref={el=>{ if(el) autosize(el) }} value={local.notes?.personality||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, personality:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.personality) ? local.fieldHeights.notesMeta.personality + 'px' : undefined}} /></label>
             <label>悩み事<textarea data-cat="notesMeta" data-id="worries" ref={el=>{ if(el) autosize(el) }} value={local.notes?.worries||''} onChange={e=>{ setLocal({...local, notes:{...local.notes, worries:e.target.value}}); autosize(e.target) }} style={{height: (local.fieldHeights?.notesMeta?.worries) ? local.fieldHeights.notesMeta.worries + 'px' : undefined}} /></label>
@@ -774,7 +775,9 @@ export default function PersonPage({person, onSave, onBack, embedded=false, tab:
               })}
             </div>
 
-            <div className="basic-label notes-group-label">その他のメモ</div>
+            </details>
+            <div className="basic-label notes-group-label">自由なメモ</div>
+            {!(local.notes?.entries||[]).length && <p className="y-muted">書きたいことがあるときだけ、「メモを追加」から。埋める項目はありません。</p>}
             <div className="notes-entries">
               {(local.notes?.entries||[]).map((en, i)=> (
                 <div key={en.id} onDragEnter={e=> e.currentTarget.classList.add('drag-over')} onDragLeave={e=> e.currentTarget.classList.remove('drag-over')} onDragOver={onDragOver} onDrop={e=> { e.currentTarget.classList.remove('drag-over'); onDrop('notes', i, e) }}>

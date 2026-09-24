@@ -6,5 +6,6 @@ import './styles.css'
 import './communication.css'
 import './stage.css'
 import './flow.css'
+import './yamada.css'
 
 createRoot(document.getElementById('root')).render(<AppCommunication/>)
