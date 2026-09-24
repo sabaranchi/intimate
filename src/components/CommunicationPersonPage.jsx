@@ -2,9 +2,10 @@ import React,{useEffect,useRef,useState} from 'react'
 import PersonPage from './PersonPage'
 import * as avatarStore from '../utils/avatarStore'
 import { FALLBACK_AVATAR } from '../utils/avatarFallback'
-import { addMemory, conversations, memory, today, MODES } from '../utils/yamada'
+import { addMemory, conversations, memory, today } from '../utils/yamada'
+import YamadaStageGuide from './YamadaStageGuide'
 
-const TABS=[['together','この人と'],['basic','基本情報'],['events','思い出'],['notes','メモ']]
+const TABS=[['together','会う前'],['basic','基本情報'],['events','思い出'],['notes','メモ']]
 export default function CommunicationPersonPage({person,self,onSave,onBack}){
   const [tab,setTab]=useState('together')
   const [local,setLocal]=useState(person)
@@ -15,7 +16,6 @@ export default function CommunicationPersonPage({person,self,onSave,onBack}){
   const [notice,setNotice]=useState('')
   const [editing,setEditing]=useState(null)
   const draftInput=useRef(null)
-  const mode=MODES.find(x=>x.id===self?.yamadaMode)||MODES[0]
   useEffect(()=>{
     let active=true,url=''
     if(local.avatar){setAvatar(local.avatar);return}
@@ -34,10 +34,10 @@ export default function CommunicationPersonPage({person,self,onSave,onBack}){
   function beginEdit(item){setEditing(item.id);setDraft(item.topics||'');setDate(item.date||today());setNotice('');requestAnimationFrame(()=>draftInput.current?.focus())}
   return <div className="y-page y-person-page">
     <header className="y-top"><button onClick={onBack}>← 人のノート</button><a href="#self">山田モード ↗</a></header>
-    <div className="y-person-heading"><img src={avatar||FALLBACK_AVATAR} alt=""/><div><p className="y-eyebrow">ONE PERSON, NOT A LEVEL.</p><h1>{local.name||'名前未設定'}</h1>{local.nickname&&<p className="y-muted">{local.nickname}</p>}</div></div>
+    <div className="y-person-heading"><img src={avatar||FALLBACK_AVATAR} alt=""/><div><p className="y-eyebrow">その人との、今の距離から。</p><h1>{local.name||'名前未設定'}</h1>{local.nickname&&<p className="y-muted">{local.nickname}</p>}</div></div>
     <nav className="y-tabs" aria-label="人物のページ">{TABS.map(([key,label])=><button key={key} aria-current={tab===key?'page':undefined} onClick={()=>{setTab(key);setNotice('')}}>{label}</button>)}</nav>
     {tab==='together'?<>
-      <section className="y-card y-person-cue"><p className="y-eyebrow">山田モード · {mode.label}</p><h2>{mode.title}</h2><p>{mode.voice}</p></section>
+      <YamadaStageGuide person={local} self={self} onChange={update}/>
       <section className="y-card"><h2>覚えておきたいこと</h2>{memory(local)?<p className="y-memory">{memory(local)}</p>:<p className="y-muted">まだ空白でも大丈夫。相手が話してくれたことを、あとで少しだけ。</p>}
         <details><summary>ここに置いておくことを変える</summary><label>覚えておきたいひと言<textarea rows="2" value={local.yamada?.remember||''} onChange={e=>update({yamada:{...local.yamada,remember:e.target.value}})} placeholder="約束や、前に話してくれたこと"/></label><p className="y-muted">空欄にすると、最近の会話を表示します。</p></details>
       </section>

@@ -2,8 +2,9 @@ import React,{useEffect,useState} from 'react'
 import * as avatarStore from '../utils/avatarStore'
 import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 import { memory } from '../utils/yamada'
+import { RelationshipSummary } from './YamadaStageGuide'
 
-export default function MainListCommunication({people,onToggleDrawer,onDeleteMultiple,onStartCreate}){
+export default function MainListCommunication({people,self,onToggleDrawer,onDeleteMultiple,onStartCreate}){
   const [query,setQuery]=useState('')
   const [avatars,setAvatars]=useState({})
   const [deleteMode,setDeleteMode]=useState(false)
@@ -31,9 +32,9 @@ export default function MainListCommunication({people,onToggleDrawer,onDeleteMul
       {deleteMode&&<div className="y-actions"><span>{selected.size}人を選択</span><button disabled={!selected.size} onClick={remove}>選んだ人を削除</button><button onClick={()=>setDeleteMode(false)}>キャンセル</button></div>}
       {!people.length&&<div className="y-card y-empty"><h3>会話は、ノートの外で。</h3><p>ここには、忘れたくない人や出来事だけ。<br/>まずは一人、名前を残しておきませんか。</p><button className="y-primary" onClick={onStartCreate}>最初の一人を追加</button></div>}
       <ul className="y-people">{visible.map(p=><li key={p.id}>
-        {deleteMode?<label className="y-person-link"><input type="checkbox" checked={selected.has(p.id)} onChange={()=>toggle(p.id)}/><span>{p.name||'名前未設定'}</span></label>:<a className="y-person-link" href={'#person:'+p.id}><img src={avatars[p.id]||FALLBACK_AVATAR} alt=""/><span><strong>{p.nickname||p.name||'名前未設定'}</strong><small>{memory(p)||'その人との話を、少しずつ。'}</small></span><span aria-hidden="true">›</span></a>}
+        {deleteMode?<label className="y-person-link"><input type="checkbox" checked={selected.has(p.id)} onChange={()=>toggle(p.id)}/><span>{p.name||'名前未設定'}</span></label>:<a className="y-person-link" href={'#person:'+p.id}><img src={avatars[p.id]||FALLBACK_AVATAR} alt=""/><span><strong>{p.nickname||p.name||'名前未設定'}</strong><RelationshipSummary person={p} self={self}/><small>{memory(p)||'その人との話を、少しずつ。'}</small></span><span aria-hidden="true">›</span></a>}
       </li>)}</ul>
       {people.length>0&&!visible.length&&<p className="y-muted">その名前の人は見つかりませんでした。</p>}
-    </section><p className="y-footer">関係を採点しなくていい。目の前の人との時間を。</p>
+    </section><p className="y-footer">ハートは二人の現在地の目安。会った回数では増えません。</p>
   </div>
 }

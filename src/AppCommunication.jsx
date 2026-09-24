@@ -50,6 +50,7 @@ export default function AppCommunication(){
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
+  const [createGender, setCreateGender] = useState('')
   const [createAvatarFile, setCreateAvatarFile] = useState(null)
   const avatarMigrationStarted = useRef(false)
 
@@ -146,7 +147,7 @@ export default function AppCommunication(){
     setPeople(prev=> [...prev, {
       id: String(Date.now() + Math.floor(Math.random() * 1000)),
       name: createName.trim() || '無名',
-      reading: '', nickname: '', gender: '', relation: '', relationTags: [],
+      reading: '', nickname: '', gender: createGender, relation: '', relationTags: [],
       relationshipStatus: 'unknown', contacts: {}, address: '', birthday: '', followUpDate: '',
       workplace: '', school: '', favourites: [], dislikes: [], hobbies: [], tags: [], groups: [],
       avatarId, communication, lastInteractionDate: '', lastConversationSummary: '',
@@ -155,6 +156,7 @@ export default function AppCommunication(){
       stats: {talkDays: 0, playCount: 0}
     }])
     setCreateName('')
+    setCreateGender('')
     setCreateAvatarFile(null)
     setShowCreateModal(false)
   }
@@ -266,6 +268,7 @@ export default function AppCommunication(){
             <p className="eyebrow">NEW PERSON</p>
             <h3>人物を追加</h3>
             <label>名前<input autoFocus placeholder="名前" value={createName} onChange={e=> setCreateName(e.target.value)} /></label>
+            <label>相手の性別（任意）<select value={createGender} onChange={e=>setCreateGender(e.target.value)}><option value="">未設定</option><option value="男">男</option><option value="女">女</option><option value="other">その他</option></select></label>
             <label>写真<input type="file" accept="image/*" onChange={e=> setCreateAvatarFile(e.target.files[0])} /></label>
             <div className="modal-actions">
               <button onClick={createPerson}>作成</button>

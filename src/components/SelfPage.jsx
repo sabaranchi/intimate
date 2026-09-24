@@ -8,6 +8,7 @@ export default function SelfPage({self,onSave,onBack,saveStatus,onRetry}){
   return <div className="y-page">
     <header className="y-top"><button onClick={onBack}>← 人のノート</button><span role="status">{saveStatus==='error'?'未保存':saveStatus==='saving'?'保存中…':'保存済み'}</span></header>
     {saveStatus==='error'&&<div className="y-error" role="alert">保存できていません。画面を閉じずに再試行してください。<button onClick={onRetry}>再試行</button></div>}
+    <details className="y-card" open={!self.gender||undefined}><summary>自動モードの設定・自分のプロフィール{self.gender?'（'+(self.gender==='other'?'その他':self.gender)+'）':''}</summary><SelfSettings self={self} onSave={onSave}/></details>
     <section className="y-mode">
       <p className="y-eyebrow">山田モード</p>
       <div className="y-sun" aria-hidden="true">☀</div>
@@ -24,7 +25,7 @@ export default function SelfPage({self,onSave,onBack,saveStatus,onRetry}){
       <p className="y-muted">このモードの言葉はアプリ独自の解釈で、原作の台詞ではありません。</p>
       <a href={YAMADA_SOURCE} target="_blank" rel="noreferrer">公式の人物紹介 ↗</a>
     </details>
-    <details className="y-card"><summary>自分のメモ・プロフィール</summary><SelfSettings self={self} onSave={onSave}/></details>
+    <p className="y-muted">ここでは気分の切り替えを自由に試せます。相手ごとのモードと段階別のガイドは、その人の「会う前」に表示します。</p>
     <p className="y-footer">今日の達成度も、連続記録もありません。必要なときだけ戻ってきてください。</p>
   </div>
 }

@@ -28,3 +28,31 @@ for(const file of ['SelfPage.jsx','SelfSettings.jsx','MainListCommunication.jsx'
   assert.ok(!/from ['"].*(friendLogic|conversationFlow|stageGuidance|hanshengCorpus|selfPractice)/.test(code),file+' must not load old coaching systems')
 }
 console.log('PASS: legacy data preservation, blank input, dates, pinned memory, modes, backup, removed coaching dependencies')
+const stagesSource=readFileSync(new URL('../src/utils/yamadaStages.js',import.meta.url),'utf8')
+const {FRIEND_GUIDES,SOMEONE_GUIDES,getStage,resolveMode,setStage}=await import('data:text/javascript;base64,'+Buffer.from(stagesSource).toString('base64'))
+for(const guides of [FRIEND_GUIDES,SOMEONE_GUIDES]){
+  assert.deepEqual(guides.map(x=>x.id),[1,2,3,4,5,6,7,8,9,10])
+  assert.ok(guides.every(x=>['title','sign','action','say','attitude'].every(k=>typeof x[k]==='string'&&x[k].length>0)))
+}
+assert.equal(getStage(old),7,'restore the legacy relationship stage')
+for(const invalid of [null,undefined,0,11,-1,1.5,true,false,'bad']) assert.equal(getStage({communication:{relationshipStage:invalid}}),null)
+assert.equal(getStage({communication:{relationshipStage:'10'}}),10)
+for(const selfGender of ['男','女'])for(const gender of ['男','女']){
+  assert.deepEqual(resolveMode({gender,yamada:{mode:'someone'}},{gender:selfGender,yamadaMode:'everyday'}),{id:gender===selfGender?'friends':'someone',automatic:true})
+}
+assert.equal(resolveMode({gender:'female'},{gender:'男性'}).id,'someone')
+assert.deepEqual(resolveMode({gender:''},{gender:'男'}),{id:null,automatic:false})
+assert.deepEqual(resolveMode({gender:'other',yamada:{mode:'friends'}},{gender:'男'}),{id:'friends',automatic:false})
+assert.deepEqual(resolveMode({gender:'女',yamada:{mode:'someone'}},{gender:''}),{id:'someone',automatic:false})
+const staged=setStage(old,10)
+assert.equal(getStage(staged),10)
+assert.equal(getStage(old),7)
+assert.deepEqual(staged.communication.conversationLog,old.communication.conversationLog)
+assert.deepEqual(staged.notes,old.notes)
+assert.deepEqual(staged.photos,old.photos)
+assert.equal(staged.friendScore,70,'stage updates must not rewrite legacy scores')
+assert.equal(setStage(old,11),old)
+assert.equal(getStage(setStage(staged,null)),null)
+assert.equal(getStage(addMemory(staged,'another memory','2026-09-24','another')),10,'logging must not auto-level')
+assert.equal(getStage(JSON.parse(JSON.stringify(staged))),10)
+console.log('PASS: 20 complete stage guides, legacy stage restore, gender auto-switch in both directions, unspecified/manual modes, stage changes and backup')
