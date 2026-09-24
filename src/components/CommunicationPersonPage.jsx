@@ -4,6 +4,7 @@ import * as avatarStore from '../utils/avatarStore'
 import { FALLBACK_AVATAR } from '../utils/avatarFallback'
 import { addMemory, conversations, memory, today } from '../utils/yamada'
 import YamadaStageGuide from './YamadaStageGuide'
+import {PracticeReminder} from './YamadaPractice'
 
 const TABS=[['together','会う前'],['basic','基本情報'],['events','思い出'],['notes','メモ']]
 export default function CommunicationPersonPage({person,self,onSave,onBack}){
@@ -38,6 +39,7 @@ export default function CommunicationPersonPage({person,self,onSave,onBack}){
     <nav className="y-tabs" aria-label="人物のページ">{TABS.map(([key,label])=><button key={key} aria-current={tab===key?'page':undefined} onClick={()=>{setTab(key);setNotice('')}}>{label}</button>)}</nav>
     {tab==='together'?<>
       <YamadaStageGuide person={local} self={self} onChange={update}/>
+      <PracticeReminder self={self}/>
       <section className="y-card"><h2>覚えておきたいこと</h2>{memory(local)?<p className="y-memory">{memory(local)}</p>:<p className="y-muted">まだ空白でも大丈夫。相手が話してくれたことを、あとで少しだけ。</p>}
         <details><summary>ここに置いておくことを変える</summary><label>覚えておきたいひと言<textarea rows="2" value={local.yamada?.remember||''} onChange={e=>update({yamada:{...local.yamada,remember:e.target.value}})} placeholder="約束や、前に話してくれたこと"/></label><p className="y-muted">空欄にすると、最近の会話を表示します。</p></details>
       </section>

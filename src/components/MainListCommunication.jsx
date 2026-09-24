@@ -26,7 +26,7 @@ export default function MainListCommunication({people,self,onToggleDrawer,onDele
   function remove(){if(selected.size&&window.confirm(selected.size+'人の記録を削除します。必要なら先にエクスポートしてください。削除しますか？')){onDeleteMultiple(selected);setSelected(new Set());setDeleteMode(false)}}
   return <div className="y-page">
     <header className="y-home-header"><div><p className="y-eyebrow">HELLO, AS YOU ARE.</p><h1>人のノート</h1><p className="y-muted">うまく話すより、知りたいと思う気持ちから。</p></div><button onClick={onToggleDrawer} aria-label="メニュー">☰</button></header>
-    <a href="#self" className="y-mode-link"><span className="y-sun-small" aria-hidden="true">☀</span><span><strong>山田モードで、いこう。</strong><small>会う前に、ひと言だけ。</small></span><span aria-hidden="true">↗</span></a>
+    <a href="#self" className="y-mode-link"><span className="y-sun-small" aria-hidden="true">☀</span><span><strong>山田モードで、いこう。</strong><small>話しやすい自分へ。一つずつ練習する。</small></span><span aria-hidden="true">↗</span></a>
     <section className="y-people-section"><div className="y-section-title"><h2>話したい人、覚えていたいこと</h2><button onClick={onStartCreate} aria-label="人物を追加">＋ 追加</button></div>
       {people.length>0&&<input className="y-search" aria-label="人を探す" type="search" placeholder="名前・呼び名で探す" value={query} onChange={e=>setQuery(e.target.value)}/>}
       {deleteMode&&<div className="y-actions"><span>{selected.size}人を選択</span><button disabled={!selected.size} onClick={remove}>選んだ人を削除</button><button onClick={()=>setDeleteMode(false)}>キャンセル</button></div>}
